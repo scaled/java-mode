@@ -1,0 +1,9 @@
+   name: java-mode
+version: 1.0
+descrip: Provides language support for Java.
+ weburl: https://github.com/scaled/java-mode
+ srcurl: git:https://github.com/scaled/java-mode.git
+license: New BSD
+ srcdir: src/main/scala
+ bindir: target/classes
+ depend: ivy:com.samskivert.scaled:textmate-grammar:1.0-SNAPSHOT:jar
