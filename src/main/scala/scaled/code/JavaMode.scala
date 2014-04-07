@@ -24,11 +24,11 @@ class JavaMode (editor :Editor, config :Config, view :RBufferView, disp :Dispatc
     Selector.parse("constant") -> efface(constantStyle),
     Selector.parse("invalid")  -> efface(warnStyle),
     Selector.parse("keyword") -> efface(keywordStyle),
-    Selector.parse("storage modifier") -> efface(keywordStyle),
-    Selector.parse("storage type") -> efface(typeStyle),
-    Selector.parse("variable parameter") -> efface(variableStyle),
-    Selector.parse("variable language") -> efface(keywordStyle),
-    Selector.parse("variable other type") -> efface(variableStyle))
+    Selector.parse("storage.modifier") -> efface(keywordStyle),
+    Selector.parse("storage.type") -> efface(typeStyle),
+    Selector.parse("variable.parameter") -> efface(variableStyle),
+    Selector.parse("variable.language") -> efface(keywordStyle),
+    Selector.parse("variable.other.type") -> efface(variableStyle))
 
   private def efface (cssClass :String) = (buf :Buffer, span :Span) => {
     // TODO: first remove all code faces, then add the desired faces?
@@ -36,7 +36,7 @@ class JavaMode (editor :Editor, config :Config, view :RBufferView, disp :Dispatc
   }
 
   // TEMP: for now use a TextMate grammar for code highlighting
-  val scoper = new Scoper(Seq(Grammars.javaDoc), view.buffer)
+  val scoper = new Scoper(Grammars.grammars, view.buffer)
   scoper.apply(new Selector.Processor(colorizers))
 
   override def dispose () {} // TODO
