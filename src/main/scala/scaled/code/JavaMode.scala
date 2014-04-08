@@ -13,12 +13,15 @@ object JavaConfig extends ConfigDefs {
   import CodeConfig._
 
   // map TextMate grammar scopes to Scaled style definitions
-  val colorizers = Map(
-    effacer("comment", commentStyle),
+  val colorizers = List(
+    // Java code colorizations
+    effacer("comment.line", commentStyle),
+    effacer("comment.block", docStyle),
     effacer("constant", constantStyle),
     effacer("invalid", warnStyle),
     effacer("keyword", keywordStyle),
     effacer("storage.type.java", typeStyle), // TODO: handle match-specificity (drop .java)
+    effacer("storage.type.generic.java", typeStyle),
     effacer("storage.type.annotation", preprocessorStyle),
     effacer("storage.modifier.java", keywordStyle),
     effacer("storage.modifier.package", constantStyle),
@@ -31,15 +34,22 @@ object JavaConfig extends ConfigDefs {
     effacer("entity.name.function.java", functionStyle),
     effacer("variable.language", keywordStyle),
     effacer("variable.parameter", variableStyle),
-    effacer("variable.other.type", variableStyle))
+    effacer("variable.other.type", variableStyle),
+    // Javadoc colorizations
+    effacer("markup.underline", preprocessorStyle),
+    // HTML in Javadoc colorizations
+    effacer("entity.name.tag", constantStyle)
+  )
+
+  /** A predicate we use to strip `code` styles from a line before restyling it. */
+  private val codeP = (style :String) => style startsWith "code"
 
   /** Compiles `selector` into a TextMate grammar selector and pairs it with a function that applies
     * `cssClass` to buffer spans matched by the selector. */
   def effacer (selector :String, cssClass :String) =
-    // TODO: first remove all code faces, then add the desired faces?
     (Selector.parse(selector), (buf :Buffer, span :Span) => {
       // println(s"Applying $cssClass to $span")
-      buf.addStyle(cssClass, span)
+      buf.updateStyles(_ - codeP + cssClass, span)
     })
 }
 
