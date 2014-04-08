@@ -234,14 +234,6 @@
 						<dict>
 							<key>begin</key>
 							<string>\(</string>
-							<key>beginCaptures</key>
-							<dict>
-								<key>1</key>
-								<dict>
-									<key>name</key>
-									<string>storage.type.java</string>
-								</dict>
-							</dict>
 							<key>end</key>
 							<string>\)</string>
 							<key>patterns</key>
@@ -444,10 +436,6 @@
 				</dict>
 				<dict>
 					<key>include</key>
-					<string>#annotations</string>
-				</dict>
-				<dict>
-					<key>include</key>
 					<string>#storage-modifiers</string>
 				</dict>
 				<dict>
@@ -463,6 +451,10 @@
 				<dict>
 					<key>include</key>
 					<string>#comments</string>
+				</dict>
+				<dict>
+					<key>include</key>
+					<string>#annotations</string>
 				</dict>
 				<dict>
 					<key>include</key>
