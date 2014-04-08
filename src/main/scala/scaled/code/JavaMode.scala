@@ -38,7 +38,7 @@ object JavaConfig extends ConfigDefs {
   def effacer (selector :String, cssClass :String) =
     // TODO: first remove all code faces, then add the desired faces?
     (Selector.parse(selector), (buf :Buffer, span :Span) => {
-      println(s"Applying $cssClass to $span")
+      // println(s"Applying $cssClass to $span")
       buf.addStyle(cssClass, span)
     })
 }
