@@ -8,9 +8,10 @@ import scaled.grammar._
 
 object Grammars {
 
-  def javaGrammar = Grammar.parse(stream("Java.tmLanguage"))
+  def htmlGrammar = Grammar.parse(stream("HTML.tmLanguage"))
   def javaDocGrammar = Grammar.parse(stream("JavaDoc.tmLanguage"))
-  lazy val grammars = Seq(javaDocGrammar, javaGrammar)
+  def javaGrammar = Grammar.parse(stream("Java.tmLanguage"))
+  lazy val grammars = Seq(htmlGrammar, javaDocGrammar, javaGrammar)
 
   private def stream (path :String) = getClass.getClassLoader.getResourceAsStream(path)
 }
