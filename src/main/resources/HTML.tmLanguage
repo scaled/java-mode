@@ -147,10 +147,6 @@
 					<key>name</key>
 					<string>invalid.illegal.bad-comments-or-CDATA.html</string>
 				</dict>
-				<dict>
-					<key>include</key>
-					<string>#embedded-code</string>
-				</dict>
 			</array>
 		</dict>
 		<dict>
@@ -212,10 +208,6 @@
 			</array>
 		</dict>
 		<dict>
-			<key>include</key>
-			<string>#embedded-code</string>
-		</dict>
-		<dict>
 			<key>begin</key>
 			<string>(?:^\s+)?(&lt;)((?i:style))\b(?![^&gt;]*/&gt;)</string>
 			<key>captures</key>
@@ -261,10 +253,6 @@
 					<string>(?=&lt;/(?i:style))</string>
 					<key>patterns</key>
 					<array>
-						<dict>
-							<key>include</key>
-							<string>#embedded-code</string>
-						</dict>
 						<dict>
 							<key>include</key>
 							<string>source.css</string>
@@ -514,20 +502,6 @@
 	</array>
 	<key>repository</key>
 	<dict>
-		<key>embedded-code</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>#smarty</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#python</string>
-				</dict>
-			</array>
-		</dict>
 		<key>entities</key>
 		<dict>
 			<key>patterns</key>
@@ -559,64 +533,6 @@
 				</dict>
 			</array>
 		</dict>
-		<key>python</key>
-		<dict>
-			<key>begin</key>
-			<string>(?:^\s*)&lt;\?python(?!.*\?&gt;)</string>
-			<key>end</key>
-			<string>\?&gt;(?:\s*$\n)?</string>
-			<key>name</key>
-			<string>source.python.embedded.html</string>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>include</key>
-					<string>source.python</string>
-				</dict>
-			</array>
-		</dict>
-		<key>smarty</key>
-		<dict>
-			<key>patterns</key>
-			<array>
-				<dict>
-					<key>begin</key>
-					<string>(\{(literal)\})</string>
-					<key>captures</key>
-					<dict>
-						<key>1</key>
-						<dict>
-							<key>name</key>
-							<string>source.smarty.embedded.html</string>
-						</dict>
-						<key>2</key>
-						<dict>
-							<key>name</key>
-							<string>support.function.built-in.smarty</string>
-						</dict>
-					</dict>
-					<key>end</key>
-					<string>(\{/(literal)\})</string>
-				</dict>
-				<dict>
-					<key>begin</key>
-					<string>\{\{|\{</string>
-					<key>disabled</key>
-					<integer>1</integer>
-					<key>end</key>
-					<string>}}|}</string>
-					<key>name</key>
-					<string>source.smarty.embedded.html</string>
-					<key>patterns</key>
-					<array>
-						<dict>
-							<key>include</key>
-							<string>source.smarty</string>
-						</dict>
-					</array>
-				</dict>
-			</array>
-		</dict>
 		<key>string-double-quoted</key>
 		<dict>
 			<key>begin</key>
@@ -643,10 +559,6 @@
 			<string>string.quoted.double.html</string>
 			<key>patterns</key>
 			<array>
-				<dict>
-					<key>include</key>
-					<string>#embedded-code</string>
-				</dict>
 				<dict>
 					<key>include</key>
 					<string>#entities</string>
@@ -679,10 +591,6 @@
 			<string>string.quoted.single.html</string>
 			<key>patterns</key>
 			<array>
-				<dict>
-					<key>include</key>
-					<string>#embedded-code</string>
-				</dict>
 				<dict>
 					<key>include</key>
 					<string>#entities</string>
@@ -748,10 +656,6 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#embedded-code</string>
-						</dict>
-						<dict>
-							<key>include</key>
 							<string>#entities</string>
 						</dict>
 					</array>
@@ -785,10 +689,6 @@
 					<array>
 						<dict>
 							<key>include</key>
-							<string>#embedded-code</string>
-						</dict>
-						<dict>
-							<key>include</key>
 							<string>#entities</string>
 						</dict>
 					</array>
@@ -814,10 +714,6 @@
 				<dict>
 					<key>include</key>
 					<string>#string-single-quoted</string>
-				</dict>
-				<dict>
-					<key>include</key>
-					<string>#embedded-code</string>
 				</dict>
 				<dict>
 					<key>include</key>
