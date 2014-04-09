@@ -8,7 +8,7 @@ import scaled._
 import scaled.grammar.{Scoper, Selector, Span}
 import scaled.major.{CodeConfig, CodeMode}
 
-object JavaConfig extends ConfigDefs {
+object JavaConfig extends Config.Defs {
   import EditorConfig._
   import CodeConfig._
 
@@ -58,8 +58,7 @@ object JavaConfig extends ConfigDefs {
        pats=Array(".*\\.java"),
        ints=Array("java"),
        desc="A major editing mode for the Java language.")
-class JavaMode (editor :Editor, config :Config, view :RBufferView, disp :Dispatcher)
-    extends CodeMode(editor, config, view, disp) {
+class JavaMode (env :Env) extends CodeMode(env) {
 
   // TEMP: for now use a TextMate grammar for code highlighting
   val scoper = new Scoper(Grammars.grammars, view.buffer)
