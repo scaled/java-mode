@@ -57,11 +57,11 @@ object JavaConfig extends Config.Defs {
        tags=Array("code", "project", "java"),
        pats=Array(".*\\.java"),
        ints=Array("java"),
-       desc="A major editing mode for the Java language.")
+       desc="A major mode for editing Java language source code.")
 class JavaMode (env :Env) extends CodeMode(env) {
 
   // TEMP: for now use a TextMate grammar for code highlighting
-  val scoper = new Scoper(Grammars.grammars, view.buffer)
+  val scoper = new Scoper(Grammars.javaGrammars, view.buffer)
   scoper.apply(new Selector.Processor(JavaConfig.colorizers))
 
   override def configDefs = JavaConfig :: super.configDefs
