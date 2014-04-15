@@ -5,15 +5,16 @@
 package scaled.code
 
 import scaled._
-import scaled.grammar.{Scoper, Selector, Span}
-import scaled.major.{CodeConfig, CodeMode}
+import scaled.grammar._
+import scaled.major.CodeConfig
 
 object JavaConfig extends Config.Defs {
   import EditorConfig._
   import CodeConfig._
+  import GrammarCodeConfig._
 
   // map TextMate grammar scopes to Scaled style definitions
-  val colorizers = List(
+  val effacers = List(
     // Java code colorizations
     effacer("comment.line", commentStyle),
     effacer("comment.block", docStyle),
@@ -40,17 +41,6 @@ object JavaConfig extends Config.Defs {
     // HTML in Javadoc colorizations
     effacer("entity.name.tag", constantStyle)
   )
-
-  /** A predicate we use to strip `code` styles from a line before restyling it. */
-  private val codeP = (style :String) => style startsWith "code"
-
-  /** Compiles `selector` into a TextMate grammar selector and pairs it with a function that applies
-    * `cssClass` to buffer spans matched by the selector. */
-  def effacer (selector :String, cssClass :String) =
-    (Selector.parse(selector), (buf :Buffer, span :Span) => {
-      // println(s"Applying $cssClass to $span")
-      buf.updateStyles(_ - codeP + cssClass, span)
-    })
 }
 
 @Major(name="java",
@@ -58,23 +48,11 @@ object JavaConfig extends Config.Defs {
        pats=Array(".*\\.java"),
        ints=Array("java"),
        desc="A major mode for editing Java language source code.")
-class JavaMode (env :Env) extends CodeMode(env) {
-
-  // TEMP: for now use a TextMate grammar for code highlighting
-  val scoper = new Scoper(Grammars.javaGrammars, view.buffer)
-  scoper.apply(new Selector.Processor(JavaConfig.colorizers))
+class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
   override def configDefs = JavaConfig :: super.configDefs
-  override def keymap = super.keymap ++ Seq(
-    "M-A-p" -> "show-syntax" // TODO: also M-PI?
-  )
-  override def dispose () {} // TODO: remove all colorizations?
-
-  @Fn("Displays the TextMate syntax scopes at the point.")
-  def showSyntax () {
-    val ss = scoper.scopesAt(view.point())
-    view.popup() = Popup(if (ss.isEmpty) List("No scopes.") else ss, Popup.UpRight(view.point()))
-  }
+  override protected def grammars = Grammars.javaGrammars
+  override protected def effacers = JavaConfig.effacers
 
   // TODO: more things!
 }
