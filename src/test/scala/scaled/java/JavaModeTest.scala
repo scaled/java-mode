@@ -2,7 +2,7 @@
 // Scaled Java Mode - a Scaled major mode for editing Java code
 // http://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.code
+package scaled.java
 
 import java.io.{File, StringReader}
 import org.junit.Assert._
@@ -49,8 +49,8 @@ class JavaModeTest {
     val grammars = Seq(Grammar.parse(html), Grammar.parse(javaDoc), Grammar.parse(java))
     val buffer = testBuffer("Test.java", testJavaCode)
     val scoper = new Scoper(grammars, buffer)
-    println(scoper.toString(Set("#code", "#class")))
+    println(scoper.showMatchers(Set("#code", "#class")))
     // TEMP: for now use a TextMate grammar for code highlighting
-    scoper.apply(new Selector.Processor(JavaConfig.colorizers))
+    scoper.apply(new Selector.Processor(JavaConfig.effacers))
   }
 }
