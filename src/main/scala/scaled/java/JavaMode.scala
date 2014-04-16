@@ -2,7 +2,7 @@
 // Scaled Java Mode - a Scaled major mode for editing Java code
 // http://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.code
+package scaled.java
 
 import scaled._
 import scaled.grammar._
@@ -41,6 +41,11 @@ object JavaConfig extends Config.Defs {
     // HTML in Javadoc colorizations
     effacer("entity.name.tag", constantStyle)
   )
+
+  def htmlGrammar = Grammar.parse(stream("HTML.tmLanguage"))
+  def javaDocGrammar = Grammar.parse(stream("JavaDoc.tmLanguage"))
+  def javaGrammar = Grammar.parse(stream("Java.tmLanguage"))
+  lazy val grammars = Seq(htmlGrammar, javaDocGrammar, javaGrammar)
 }
 
 @Major(name="java",
@@ -51,7 +56,7 @@ object JavaConfig extends Config.Defs {
 class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
   override def configDefs = JavaConfig :: super.configDefs
-  override protected def grammars = Grammars.javaGrammars
+  override protected def grammars = JavaConfig.grammars
   override protected def effacers = JavaConfig.effacers
 
   // TODO: more things!

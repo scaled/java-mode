@@ -2,7 +2,7 @@
 // Scaled Java Mode - a Scaled major mode for editing Java code
 // http://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.code
+package scaled.java
 
 import scaled._
 import scaled.grammar._
@@ -17,6 +17,9 @@ object PropertiesConfig extends Config.Defs {
     effacer("comment.line", commentStyle),
     effacer("keyword", keywordStyle)
   )
+
+  def propsGrammar = Grammar.parse(stream("JavaProperties.tmLanguage"))
+  lazy val grammars = Seq(propsGrammar)
 }
 
 @Major(name="properties",
@@ -26,6 +29,6 @@ object PropertiesConfig extends Config.Defs {
 class PropertiesMode (env :Env) extends GrammarCodeMode(env) {
 
   override def configDefs = PropertiesConfig :: super.configDefs
-  override protected def grammars = Grammars.propsGrammars
+  override protected def grammars = PropertiesConfig.grammars
   override protected def effacers = PropertiesConfig.effacers
 }
