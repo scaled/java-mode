@@ -11,7 +11,7 @@ import scaled.major.CodeConfig
 object JavaConfig extends Config.Defs {
   import EditorConfig._
   import CodeConfig._
-  import GrammarCodeConfig._
+  import GrammarConfig._
 
   // map TextMate grammar scopes to Scaled style definitions
   val effacers = List(
@@ -54,6 +54,8 @@ object JavaConfig extends Config.Defs {
        ints=Array("java"),
        desc="A major mode for editing Java language source code.")
 class JavaMode (env :Env) extends GrammarCodeMode(env) {
+
+  override def dispose () {} // nada for now
 
   override def configDefs = JavaConfig :: super.configDefs
   override protected def grammars = JavaConfig.grammars
