@@ -21,6 +21,8 @@ object JavaConfig extends Config.Defs {
     effacer("constant", constantStyle),
     effacer("invalid", warnStyle),
     effacer("keyword", keywordStyle),
+    effacer("string", stringStyle),
+
     effacer("storage.type.java", typeStyle), // TODO: handle match-specificity (drop .java)
     effacer("storage.type.generic.java", typeStyle),
     effacer("storage.type.annotation", preprocessorStyle),
@@ -30,14 +32,18 @@ object JavaConfig extends Config.Defs {
     effacer("storage.modifier.implements", keywordStyle),
     effacer("storage.modifier.import", typeStyle),
     effacer("storage.type.primitive", typeStyle),
+
     effacer("entity.name.type.class", typeStyle),
     effacer("entity.other.inherited-class", typeStyle),
     effacer("entity.name.function.java", functionStyle),
+
     effacer("variable.language", keywordStyle),
     effacer("variable.parameter", variableStyle),
     effacer("variable.other.type", variableStyle),
+
     // Javadoc colorizations
     effacer("markup.underline", preprocessorStyle),
+
     // HTML in Javadoc colorizations
     effacer("entity.name.tag", constantStyle)
   )
