@@ -24,11 +24,9 @@ object PropertiesConfig extends Config.Defs {
 
 @Major(name="properties",
        tags=Array("code", "project", "properties"),
-       pats=Array(".*\\.properties"),
+       pats=Array(".*\\.properties", "package.scaled"),
        desc="A major mode for editing Java properties files.")
 class PropertiesMode (env :Env) extends GrammarCodeMode(env) {
-
-  override def dispose () {} // nada for now
 
   override def configDefs = PropertiesConfig :: super.configDefs
   override protected def grammars = PropertiesConfig.grammars

@@ -61,8 +61,6 @@ object JavaConfig extends Config.Defs {
        desc="A major mode for editing Java language source code.")
 class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
-  override def dispose () {} // nada for now
-
   override def configDefs = JavaConfig :: super.configDefs
   override protected def grammars = JavaConfig.grammars
   override protected def effacers = JavaConfig.effacers
