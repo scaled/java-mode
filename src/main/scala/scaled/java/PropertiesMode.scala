@@ -29,6 +29,6 @@ object PropertiesConfig extends Config.Defs {
 class PropertiesMode (env :Env) extends GrammarCodeMode(env) {
 
   override def configDefs = PropertiesConfig :: super.configDefs
-  override protected def grammars = PropertiesConfig.grammars
-  override protected def effacers = PropertiesConfig.effacers
+  override def grammars = PropertiesConfig.grammars
+  override def effacers = PropertiesConfig.effacers
 }
