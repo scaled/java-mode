@@ -7,6 +7,7 @@ package scaled.java
 import scaled._
 import scaled.grammar._
 import scaled.major.CodeConfig
+import scaled.util.Commenter
 
 object PropertiesConfig extends Config.Defs {
   import CodeConfig._
@@ -31,4 +32,10 @@ class PropertiesMode (env :Env) extends GrammarCodeMode(env) {
   override def configDefs = PropertiesConfig :: super.configDefs
   override def grammars = PropertiesConfig.grammars
   override def effacers = PropertiesConfig.effacers
+
+  override val indenters = Nil
+  override val commenter = new Commenter(buffer) {
+    override def commentPrefix = "# "
+    // TODO: ! is also a comment start character, sigh...
+  }
 }

@@ -7,7 +7,7 @@ package scaled.java
 import scaled._
 import scaled.grammar.{Grammar, GrammarConfig, GrammarCodeMode}
 import scaled.major.CodeConfig
-import scaled.util.{Chars, Indenter}
+import scaled.util.{Chars, Commenter, Indenter}
 
 object JavaConfig extends Config.Defs {
   import EditorConfig._
@@ -75,7 +75,7 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
   override def grammars = JavaConfig.grammars
   override def effacers = JavaConfig.effacers
 
-  override def createIndenters () = List(
+  override val indenters = List(
 //    new Indenter.PairAnchorAlign(config, buffer) {
 //      protected val anchorM = Matcher.regexp("\\bfor\\b")
 //      protected val secondM = Matcher.regexp("yield\\b")
@@ -92,10 +92,36 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
     new Indenter.ByBlock(config, buffer) {
       override def readBlockIndent (pos :Loc) = JavaIndenter.readBlockIndent(buffer, pos)
     }
-  ) ++ super.createIndenters()
+  )
 
-  override def commentPrefix :Option[String] = Some("// ")
-  override def docPrefix :Option[String] = Some("* ")
+  class JavaCommenter (buffer :Buffer) extends Commenter(buffer) {
+    override def commentPrefix = "//"
+    override def docPrefix = "*"
+
+    private val openDocM = Matcher.exact("/**")
+    private val closeDocM = Matcher.exact("*/")
+
+    def inDoc (p :Loc) :Boolean = {
+      val line = buffer.line(p)
+      // we need to be on doc-styled text...
+      ((buffer.stylesNear(p) contains docStyle) &&
+       // and not on the open doc (/**)
+       !line.matches(openDocM, p.col) &&
+       // and not on or after the close doc (*/)
+       (line.lastIndexOf(closeDocM, p.col) == -1))
+    }
+
+    def insertDocPre (p :Loc) :Loc = {
+      buffer.insert(p, docPrefix, Styles.None)
+      p + (0, docPrefix.length)
+    }
+
+    override def commentDelimLen (line :LineV, col :Int) =
+      if (line.matches(openDocM, col)) openDocM.matchLength
+      else if (line.matches(closeDocM, col)) closeDocM.matchLength
+      else super.commentDelimLen(line, col)
+  }
+  override val commenter :JavaCommenter = new JavaCommenter(buffer)
 
   //
   // FNs
@@ -104,29 +130,13 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
          If newline is inserted in the middle of a Javadoc comment, the next line is prepended with
          * before indenting. TODO: other smarts.""")
   def electricNewline () {
-    val p = view.point()
-    val line = buffer.line(p)
-
     // shenanigans to determine whether we should auto-insert the doc prefix (* )
-    val inDoc = (
-      // we need to be on doc-styled text...
-      (stylesNear(p) contains docStyle) &&
-      // and not on the open doc (/**)
-      !line.matches(openDocM, p.col) &&
-      // and not on or after the close doc (*/)
-      (line.lastIndexOf(closeDocM, p.col) == -1)
-    )
-
+    val inDoc = commenter.inDoc(view.point())
     newline()
     val np = view.point()
-    if (inDoc && buffer.charAt(np) != '*') {
-      buffer.insert(view.point(), docPrefix.get, Styles.None)
-      view.point() = view.point() + (0, docPrefix.get.length)
-    }
+    if (inDoc && buffer.charAt(np) != '*') view.point() = commenter.insertDocPre(np)
     reindentAtPoint()
   }
-  private val openDocM = Matcher.exact("/**")
-  private val closeDocM = Matcher.exact("*/")
 
   // TODO: more things!
 }
