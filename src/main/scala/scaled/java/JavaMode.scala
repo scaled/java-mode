@@ -6,8 +6,8 @@ package scaled.java
 
 import scaled._
 import scaled.grammar.{Grammar, GrammarConfig, GrammarCodeMode}
-import scaled.major.CodeConfig
-import scaled.util.{Chars, Commenter, Indenter}
+import scaled.code.{CodeConfig, Commenter, Indenter}
+import scaled.util.Chars
 
 object JavaConfig extends Config.Defs {
   import EditorConfig._
