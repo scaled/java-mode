@@ -34,7 +34,7 @@ class PropertiesMode (env :Env) extends GrammarCodeMode(env) {
 
   override val indenters = Nil
   override val commenter = new Commenter(buffer) {
-    override def commentPrefix = "#"
+    override def linePrefix = "#"
     // TODO: ! is also a comment start character, sigh...
   }
 }

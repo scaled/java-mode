@@ -104,8 +104,9 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
   )
 
   class JavaCommenter (buffer :Buffer) extends Commenter(buffer) {
-    override def commentPrefix = "//"
-    override def docPrefix = "*"
+    override def linePrefix  = "//"
+    override def blockPrefix = "*"
+    override def docPrefix   = "*"
 
     private val openDocM = Matcher.exact("/**")
     private val closeDocM = Matcher.exact("*/")
