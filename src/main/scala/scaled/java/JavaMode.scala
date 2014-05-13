@@ -50,6 +50,14 @@ object JavaConfig extends Config.Defs {
     effacer("entity.name.tag", constantStyle)
   )
 
+  // map TextMate grammar scopes to Scaled syntax definitions
+  val syntaxers = List(
+    syntaxer("comment.line", Syntax.LineComment),
+    syntaxer("comment.block", Syntax.DocComment),
+    syntaxer("constant", Syntax.OtherLiteral),
+    syntaxer("string", Syntax.StringLiteral)
+  )
+
   def htmlGrammar = Grammar.parse(stream("HTML.tmLanguage"))
   def javaDocGrammar = Grammar.parse(stream("JavaDoc.tmLanguage"))
   def javaGrammar = Grammar.parse(stream("Java.tmLanguage"))
@@ -74,6 +82,7 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
   override def grammars = JavaConfig.grammars
   override def effacers = JavaConfig.effacers
+  override def syntaxers = JavaConfig.syntaxers
 
   override val indenters = List(
 //    new Indenter.PairAnchorAlign(config, buffer) {
