@@ -105,6 +105,8 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
   class JavaCommenter (buffer :Buffer) extends Commenter(buffer) {
     override def linePrefix  = "//"
+    override def blockOpen = "/*"
+    override def blockClose = "*/"
     override def blockPrefix = "*"
     override def docPrefix   = "*"
 
