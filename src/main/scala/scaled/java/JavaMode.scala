@@ -103,7 +103,7 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
     }
   )
 
-  class JavaCommenter (buffer :Buffer) extends Commenter(buffer) {
+  class JavaCommenter extends Commenter {
     override def linePrefix  = "//"
     override def blockOpen = "/*"
     override def blockClose = "*/"
@@ -133,7 +133,7 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
       else if (line.matches(closeDocM, col)) closeDocM.matchLength
       else super.commentDelimLen(line, col)
   }
-  override val commenter :JavaCommenter = new JavaCommenter(buffer)
+  override val commenter :JavaCommenter = new JavaCommenter()
 
   //
   // FNs
