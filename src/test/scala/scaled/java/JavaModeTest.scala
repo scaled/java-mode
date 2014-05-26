@@ -9,8 +9,8 @@ import org.junit.Assert._
 import org.junit._
 import scaled._
 import scaled.grammar._
+import scaled.code.CodeConfig
 import scaled.impl.BufferImpl
-import scaled.major.CodeConfig
 
 class JavaModeTest {
 
@@ -39,9 +39,6 @@ class JavaModeTest {
     /*19*/ "   public void test (int count) {}",
     /*20*/ "}").mkString("\n")
 
-  def testBuffer (name :String, text :String) =
-    BufferImpl(name, new File(name), new StringReader(text))
-
   val html = getClass.getClassLoader.getResourceAsStream("HTML.tmLanguage")
   val javaDoc = getClass.getClassLoader.getResourceAsStream("JavaDoc.tmLanguage")
   val java = getClass.getClassLoader.getResourceAsStream("Java.tmLanguage")
@@ -49,7 +46,7 @@ class JavaModeTest {
   val grammars = Seq(Grammar.parse(html), Grammar.parse(javaDoc), Grammar.parse(java))
 
   @Test def testStylesLink () {
-    val buffer = testBuffer("Test.java", testJavaCode)
+    val buffer = BufferImpl(new TextStore("Test.java", "", testJavaCode))
     val scoper = new Scoper(grammars, buffer, List(new Selector.Processor(JavaConfig.effacers)))
     // println(scoper.showMatchers(Set("#code", "#class")))
     assertTrue("@link contents scoped as link",
