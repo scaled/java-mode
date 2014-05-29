@@ -7,7 +7,7 @@ package scaled.java
 import scaled._
 import scaled.grammar.{Grammar, GrammarConfig, GrammarCodeMode}
 import scaled.code.{CodeConfig, Commenter, Indenter}
-import scaled.util.Chars
+import scaled.util.{Chars, Paragrapher}
 
 object JavaConfig extends Config.Defs {
   import CodeConfig._
@@ -102,36 +102,6 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
     }
   )
 
-  class JavaCommenter extends Commenter {
-    override def linePrefix  = "//"
-    override def blockOpen = "/*"
-    override def blockClose = "*/"
-    override def blockPrefix = "*"
-    override def docPrefix   = "*"
-
-    private val openDocM = Matcher.exact("/**")
-    private val closeDocM = Matcher.exact("*/")
-
-    def inDoc (p :Loc) :Boolean = {
-      val line = buffer.line(p)
-      // we need to be on doc-styled text...
-      ((buffer.stylesNear(p) contains docStyle) &&
-       // and not on the open doc (/**)
-       !line.matches(openDocM, p.col) &&
-       // and not on or after the close doc (*/)
-       (line.lastIndexOf(closeDocM, p.col) == -1))
-    }
-
-    def insertDocPre (p :Loc) :Loc = {
-      buffer.insert(p, Line(docPrefix))
-      p + (0, docPrefix.length)
-    }
-
-    override def commentDelimLen (line :LineV, col :Int) =
-      if (line.matches(openDocM, col)) openDocM.matchLength
-      else if (line.matches(closeDocM, col)) closeDocM.matchLength
-      else super.commentDelimLen(line, col)
-  }
   override val commenter :JavaCommenter = new JavaCommenter()
 
   //
@@ -142,10 +112,10 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
          * before indenting. TODO: other smarts.""")
   def electricNewline () {
     // shenanigans to determine whether we should auto-insert the doc prefix (* )
-    val inDoc = commenter.inDoc(view.point())
+    val inDoc = commenter.inDoc(buffer, view.point())
     newline()
     val np = view.point()
-    if (inDoc && buffer.charAt(np) != '*') view.point() = commenter.insertDocPre(np)
+    if (inDoc && buffer.charAt(np) != '*') view.point() = commenter.insertDocPre(buffer, np)
     reindentAtPoint()
   }
 
