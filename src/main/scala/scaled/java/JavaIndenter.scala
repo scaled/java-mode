@@ -52,6 +52,7 @@ object JavaIndenter {
   class Javadoc (config :Config, buffer :BufferV) extends Indenter(config, buffer) {
     private val starM = Matcher.exact("*")
     private val openM = Matcher.exact("/*")
+    private val docOpenM = Matcher.exact("/**")
 
     def apply (block :Block, line :LineV, pos :Loc) :Option[Int] =
       if (!buffer.stylesAt(pos).contains(CodeConfig.docStyle) || !startsWith(line, starM)) None
@@ -61,8 +62,17 @@ object JavaIndenter {
         // situation lacks sanity
         var row = math.max(pos.row-1, 0)
         while (row > 0 && !startsWith(buffer.line(row), openM)) row -= 1
-        debug(s"Aligning javadoc * with comment start on row $row.")
-        Some(readIndent(buffer.line(row)) + 1)
+        // if the open comment row contains only /** then align with the first star, if it
+        // contains /** followed by text, align with the second star
+        val openLine = buffer.line(row)
+        val indent = openLine.indexOf(docOpenM) match {
+          case -1 => debug(s"Aligning javadoc * with block comment start on row $row.") ; 1
+          case ii => openLine.indexOf(isNotWhitespace, ii+docOpenM.matchLength) match {
+            case -1 => debug(s"Aligning javadoc * with bare doc comment start on row $row.") ; 1
+            case ii => debug(s"Aligning javadoc * with textful doc comment start on row $row.") ; 2
+          }
+        }
+        Some(readIndent(openLine) + indent)
       }
   }
 }
