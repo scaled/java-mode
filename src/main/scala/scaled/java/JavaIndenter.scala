@@ -33,7 +33,7 @@ object JavaIndenter {
   private val extendsOrImplM = Matcher.regexp("""(extends|implements)\b""")
 
   /** Indents `extends` and `implements` relative to a preceding `(class|interface)` line. */
-  class ExtendsImpls (config :Config, buffer :BufferV) extends Indenter(config, buffer) {
+  class ExtendsImpls (ctx :Context) extends Indenter(ctx) {
     private val classIfaceM = Matcher.regexp("""\b(class|interface)\b""")
     private val extendsImplsM = Matcher.regexp("""(extends|implements)\b""")
 
@@ -49,7 +49,7 @@ object JavaIndenter {
   }
 
   /** Aligns subsequent and final lines in Javadoc comments on the first `*`. */
-  class Javadoc (config :Config, buffer :BufferV) extends Indenter(config, buffer) {
+  class Javadoc (ctx :Context) extends Indenter(ctx) {
     private val starM = Matcher.exact("*")
     private val openM = Matcher.exact("/*")
     private val docOpenM = Matcher.exact("/**")

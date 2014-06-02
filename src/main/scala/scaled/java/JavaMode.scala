@@ -92,12 +92,12 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
 //    new Indenter.TryFinallyAlign(config, buffer),
 //    new Indenter.IfElseIfElseAlign(config, buffer),
 //    new ScalaIndenter.ValueExprBody(config, buffer),
-    new JavaIndenter.ExtendsImpls(config, buffer),
-    new JavaIndenter.Javadoc(config, buffer),
+    new JavaIndenter.ExtendsImpls(indentCtx),
+    new JavaIndenter.Javadoc(indentCtx),
 //    new Indenter.OneLinerWithArgs(config, buffer, blocker, Set("if", "while", "for")),
 //    new Indenter.OneLinerNoArgs(config, buffer, Set("else", "do", "try", "finally")),
 //    new ScalaIndenter.CaseBody(config, buffer),
-    new Indenter.ByBlock(config, buffer) {
+    new Indenter.ByBlock(indentCtx) {
       override def readBlockIndent (pos :Loc) = JavaIndenter.readBlockIndent(buffer, pos)
     }
   )
