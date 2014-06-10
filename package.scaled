@@ -6,4 +6,4 @@ descrip: Provides language support for Java.
 license: New BSD
  srcdir: src/main/scala
  bindir: target/classes
- depend: mvn:com.samskivert.scaled:textmate-grammar:1.0-SNAPSHOT:jar
+ depend: git:https://github.com/scaled/textmate-grammar.git
