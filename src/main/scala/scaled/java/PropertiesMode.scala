@@ -24,7 +24,7 @@ object PropertiesConfig extends Config.Defs {
 
 @Major(name="properties",
        tags=Array("code", "project", "properties"),
-       pats=Array(".*\\.properties", "package.scaled"),
+       pats=Array(".*\\.properties", "package.scaled", "module.scaled"),
        desc="A major mode for editing Java properties files.")
 class PropertiesMode (env :Env) extends GrammarCodeMode(env) {
 
