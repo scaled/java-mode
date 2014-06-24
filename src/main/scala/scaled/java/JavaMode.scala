@@ -29,7 +29,7 @@ object JavaConfig extends Config.Defs {
     effacer("storage.type.object", typeStyle), // meh, colors array []s same as type...
     effacer("storage.type.annotation", preprocessorStyle),
     effacer("storage.modifier.java", keywordStyle),
-    effacer("storage.modifier.package", constantStyle),
+    effacer("storage.modifier.package", moduleStyle),
     effacer("storage.modifier.extends", keywordStyle),
     effacer("storage.modifier.implements", keywordStyle),
     effacer("storage.modifier.import", typeStyle),
