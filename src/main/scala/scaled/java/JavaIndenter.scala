@@ -5,7 +5,7 @@
 package scaled.java
 
 import scaled._
-import scaled.code.{CodeConfig, Block, Indenter}
+import scaled.code.{Block, Indenter}
 import scaled.util.Chars
 
 object JavaIndenter {
@@ -55,7 +55,7 @@ object JavaIndenter {
     private val docOpenM = Matcher.exact("/**")
 
     def apply (block :Block, line :LineV, pos :Loc) :Option[Int] =
-      if (!buffer.stylesAt(pos).contains(CodeConfig.docStyle) || !startsWith(line, starM)) None
+      if (buffer.syntaxAt(pos) != Syntax.DocComment || !startsWith(line, starM)) None
       else {
         // scan back to the first line of the comment and indent one from there; the logic is
         // slightly weirded to ensure that we don't go past the start of the buffer even if the
