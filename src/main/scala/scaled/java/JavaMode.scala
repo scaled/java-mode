@@ -104,11 +104,11 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
   override val commenter :JavaCommenter = new JavaCommenter()
 
-  override def detectIndent = { val id = new Indenter.Detecter(3) {
+  override def detectIndent = new Indenter.Detecter(3) {
     private val pppM = Matcher.regexp("(public|protected|private)")
     // if the line starts with 'public/protected/private' then it is meaningful
     def consider (line :LineV, start :Int) :Int = if (line.matches(pppM, start)) 1 else 0
-  }.detectIndent(buffer) ; println(s"Detected $id") ; id }
+  }.detectIndent(buffer)
 
   //
   // FNs
