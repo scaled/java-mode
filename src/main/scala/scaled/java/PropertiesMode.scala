@@ -23,7 +23,7 @@ object PropertiesConfig extends Config.Defs {
     syntaxer("comment.line", Syntax.LineComment)
   )
 
-  def propsGrammar = Grammar.parse(stream("JavaProperties.tmLanguage"))
+  def propsGrammar = Grammar.parseNDF(stream("JavaProperties.ndf"))
   lazy val grammars = Seq(propsGrammar)
 }
 

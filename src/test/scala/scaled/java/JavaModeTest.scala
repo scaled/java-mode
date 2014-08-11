@@ -26,7 +26,7 @@ class JavaModeTest {
     /* 6*/ " */",
     /* 7*/ "public class Test extends Baffle {",
     /* 8*/ "   /**",
-    /* 9*/ "    * A constructor, woo!",
+    /* 9*/ "    * A constructor, <b>woo</b>!",
     /*10*/ "    * @param foo for fooing.",
     /*11*/ "    */",
     /*12*/ "   public Test () {}",
@@ -39,19 +39,25 @@ class JavaModeTest {
     /*19*/ "   public void test (int count) {}",
     /*20*/ "}").mkString("\n")
 
-  val html = getClass.getClassLoader.getResourceAsStream("HTML.tmLanguage")
-  val javaDoc = getClass.getClassLoader.getResourceAsStream("JavaDoc.tmLanguage")
-  val java = getClass.getClassLoader.getResourceAsStream("Java.tmLanguage")
-  // Grammar.parse(java).print(System.out)
-  val grammars = Seq(Grammar.parse(html), Grammar.parse(javaDoc), Grammar.parse(java))
+  def html = getClass.getClassLoader.getResourceAsStream("HTML.ndf")
+  def javaDoc = getClass.getClassLoader.getResourceAsStream("JavaDoc.ndf")
+  def java = getClass.getClassLoader.getResourceAsStream("Java.ndf")
+  def javaProps = getClass.getClassLoader.getResourceAsStream("JavaProperties.tmLanguage")
+  val grammars = Seq(Grammar.parseNDF(html), Grammar.parseNDF(javaDoc), Grammar.parseNDF(java))
+
+  @Test def dumpGrammar () {
+    Grammar.parsePlist(javaProps).print(System.out)
+  }
 
   @Test def testStylesLink () {
     val buffer = BufferImpl(new TextStore("Test.java", "", testJavaCode))
     val scoper = new Scoper(grammars, buffer, List(new Selector.Processor(JavaConfig.effacers)))
     // println(scoper.showMatchers(Set("#code", "#class")))
+    // 0 until buffer.lines.length foreach {
+    //   ll => scoper.showScopes(ll) foreach { s => println(ll + ": " + s) }}
     assertTrue("@link contents scoped as link",
                scoper.scopesAt(Loc(3, 61)).contains("markup.underline.link.javadoc"))
     assertEquals("@link contents styled as link",
-                 Styles(CodeConfig.preprocessorStyle), buffer.stylesAt(Loc(3, 61)))
+                 List(CodeConfig.preprocessorStyle), buffer.stylesAt(Loc(3, 61)))
   }
 }

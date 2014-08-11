@@ -57,9 +57,9 @@ object JavaConfig extends Config.Defs {
     syntaxer("string", Syntax.StringLiteral)
   )
 
-  def htmlGrammar = Grammar.parse(stream("HTML.tmLanguage"))
-  def javaDocGrammar = Grammar.parse(stream("JavaDoc.tmLanguage"))
-  def javaGrammar = Grammar.parse(stream("Java.tmLanguage"))
+  def htmlGrammar = Grammar.parseNDF(stream("HTML.ndf"))
+  def javaDocGrammar = Grammar.parseNDF(stream("JavaDoc.ndf"))
+  def javaGrammar = Grammar.parseNDF(stream("Java.ndf"))
   lazy val grammars = Seq(htmlGrammar, javaDocGrammar, javaGrammar)
 }
 
