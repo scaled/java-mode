@@ -75,4 +75,27 @@ object JavaIndenter {
         Some(readIndent(openLine) + indent)
       }
   }
+
+  /** If the previous line does not end with `; { or }`, insets one step relative to it. */
+  class ContinuedStmt (ctx :Context) extends PrevLineEnd(ctx) {
+    private val annoM = Matcher.exact("@")
+
+    def apply (block :Block, line :LineV, pos :Loc, prevPos :Loc) :Option[Int] = {
+      val lc = buffer.charAt(pos) ; val pc = buffer.charAt(prevPos)
+      // if the line we're indenting starts with {} or a comment, we're inapplicable
+      if (lc == '{' || lc == '}' || lc == '/') None
+      // if the line ends with ';{}', we're inapplicable
+      else if (pc == ';' || pc == '{' || pc == '}') None
+      // if the line we're continuing starts with an annotation, don't apply; this is not perfect,
+      // but the vast majority of the time it's a method annotation, which should not trigger
+      // further indentation; it would be nice if we did indent further in cases like:
+      // @SuppressWarnings("unchecked") Foo<B> foo = (Foo<B>)
+      //     someFooExpr;
+      else if (startsWith(buffer.line(prevPos), annoM)) None
+      else {
+        debug(s"Indenting one step from continued statement @ $prevPos")
+        Some(indentFrom(readIndentSkipArglist(ctx.buffer, prevPos), 1))
+      }
+    }
+  }
 }
