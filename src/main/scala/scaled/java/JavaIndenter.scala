@@ -76,16 +76,17 @@ object JavaIndenter {
       }
   }
 
-  /** If the previous line does not end with `; { or }`, insets one step relative to it. */
+  /** Indents continued statements. Various heuristics are applied to determine whether or not we
+    * appear to be in a continued statement. See comments in the code for details. */
   class ContinuedStmt (ctx :Context) extends PrevLineEnd(ctx) {
     private val annoM = Matcher.exact("@")
 
     def apply (block :Block, line :LineV, pos :Loc, prevPos :Loc) :Option[Int] = {
       val lc = buffer.charAt(pos) ; val pc = buffer.charAt(prevPos)
-      // if the line we're indenting starts with {} or a comment, we're inapplicable
+      // if the line we're indenting is a block or a comment, we're not applicable
       if (lc == '{' || lc == '}' || lc == '/') None
-      // if the line ends with ';{}', we're inapplicable
-      else if (pc == ';' || pc == '{' || pc == '}') None
+      // various terminators for the continued line that render us inapplicable
+      else if (pc == ';' || pc == '{' || pc == '}' || pc == ',') None
       // if the line we're continuing starts with an annotation, don't apply; this is not perfect,
       // but the vast majority of the time it's a method annotation, which should not trigger
       // further indentation; it would be nice if we did indent further in cases like:
