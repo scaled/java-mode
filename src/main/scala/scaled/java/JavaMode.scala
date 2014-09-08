@@ -74,10 +74,9 @@ class JavaMode (env :Env) extends GrammarCodeMode(env) {
 
   override def configDefs = JavaConfig :: super.configDefs
 
-  override def keymap = super.keymap ++ Seq(
-    bind("ENTER",   "electric-newline"),
-    bind("S-ENTER", "electric-newline")
-  )
+  override def keymap = super.keymap.
+    bind("ENTER",   "electric-newline").
+    bind("S-ENTER", "electric-newline");
 
   override def grammars = JavaConfig.grammars
   override def effacers = JavaConfig.effacers
