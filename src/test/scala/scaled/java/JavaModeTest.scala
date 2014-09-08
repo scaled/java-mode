@@ -51,7 +51,7 @@ class JavaModeTest {
 
   @Test def testStylesLink () {
     val buffer = BufferImpl(new TextStore("Test.java", "", testJavaCode))
-    val scoper = new Scoper(grammars, buffer, List(new Selector.Processor(JavaConfig.effacers)))
+    val scoper = new Scoper(grammars, buffer, List(new Selector.Processor(JavaConfig.INSTANCE.effacers)))
     // println(scoper.showMatchers(Set("#code", "#class")))
     // 0 until buffer.lines.length foreach {
     //   ll => scoper.showScopes(ll) foreach { s => println(ll + ": " + s) }}
