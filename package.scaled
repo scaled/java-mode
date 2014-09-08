@@ -4,5 +4,5 @@ version: 1.0
 descrip: Provides language support for Java.
  weburl: https://github.com/scaled/java-mode
 license: New BSD
- scopts: -deprecation -feature
+ jcopts: -source 1.8 -target 1.8 -Xlint:all
  depend: git:https://github.com/scaled/textmate-grammar.git
