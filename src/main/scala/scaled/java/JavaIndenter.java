@@ -97,22 +97,36 @@ public class JavaIndenter {
     private Matcher annoM = Matcher.exact("@");
     public ContinuedStmt (Context ctx ) { super(ctx); }
 
-    public Option<Object> apply (Block block, LineV line, long pos, long prevPos) {
+    protected boolean isContinued (Block block, long pos, long prevPos) {
       char lc = buffer().charAt(pos), pc = buffer().charAt(prevPos);
-      // if the line we're indenting is a block or a comment, we're not applicable
-      if (lc == '{' || lc == '}' || lc == '/') return SC.none();
+      // if the line we're indenting is a block or a comment, it's not a continuation
+      if (lc == '{' || lc == '}' || lc == '/') return false;
       // various terminators for the continued line that render us inapplicable
-      else if (pc == ';' || pc == '{' || pc == '}' || pc == ',') return SC.none();
+      if (pc == ';' || pc == '{' || pc == '}' || pc == ',') return false;
       // if the line we're continuing starts with an annotation, don't apply; this is not perfect,
       // but the vast majority of the time it's a method annotation, which should not trigger
       // further indentation; it would be nice if we did indent further in cases like:
       // @SuppressWarnings("unchecked") Foo<B> foo = (Foo<B>)
       //     someFooExpr;
-      else if (Indenter.startsWith(buffer().line(prevPos), annoM)) return SC.none();
-      else {
+      if (Indenter.startsWith(buffer().line(prevPos), annoM)) return false;
+      return true;
+    }
+
+    public Option<Object> apply (Block block, LineV line, long pos, long prevPos) {
+      // if the current line is not a continuation, we're not applicable
+      if (!isContinued(block, pos, prevPos)) return SC.none();
+      int indent;
+      // if the previous line is *also* a continuation, then don't indent further
+      long ppos = Loc.atCol$extension(prevPos, buffer().line(prevPos).firstNonWS());
+      long pPrevPos = prevNonWS(block, ppos);
+      if (isContinued(block, ppos, pPrevPos)) {
+        debug("Indenting to match continued continued statement @ " + Loc.show(prevPos));
+        indent = 0;
+      } else {
         debug("Indenting one step from continued statement @ " + Loc.show(prevPos));
-        return Option.apply(indentFrom(readIndentSkipArglist(buffer(), prevPos), 1));
+        indent = 1;
       }
+      return Option.apply(indentFrom(readIndentSkipArglist(buffer(), prevPos), indent));
     }
   }
 }
