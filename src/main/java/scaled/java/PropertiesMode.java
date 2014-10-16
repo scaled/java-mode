@@ -4,10 +4,6 @@
 
 package scaled.java;
 
-import scala.collection.immutable.List;
-import scala.collection.immutable.Nil$;
-import scala.collection.immutable.Seq;
-
 import scaled.*;
 import scaled.code.CodeConfig;
 import scaled.code.Commenter;
@@ -24,7 +20,7 @@ public class PropertiesMode extends GrammarCodeMode {
   public PropertiesMode (Env env) { super(env); }
 
   @Override public List<Config.Defs> configDefs () {
-    return SC.cons(PropertiesConfig.INSTANCE, super.configDefs());
+    return super.configDefs().cons(PropertiesConfig.INSTANCE);
   }
 
   @Override public Seq<Grammar> grammars () {
@@ -38,7 +34,7 @@ public class PropertiesMode extends GrammarCodeMode {
   }
 
   @Override public List<Indenter> indenters () {
-    return SC.nil();
+    return List.nil();
   }
   @Override public Commenter commenter () {
     return new Commenter() {

@@ -5,8 +5,6 @@
 package scaled.java;
 
 import scala.Tuple2;
-import scala.collection.immutable.List;
-import scala.collection.immutable.Seq;
 import scaled.*;
 import scaled.code.CodeConfig;
 import scaled.code.Commenter;
@@ -22,7 +20,7 @@ public class JavaConfig extends Config.Defs {
   public static final JavaConfig INSTANCE = new JavaConfig();
 
   // map TextMate grammar scopes to Scaled style definitions
-  public final List<Selector.Fn> effacers = SC.list(
+  public final List<Selector.Fn> effacers = Std.list(
     // Java code colorizations
     GrammarConfig.effacer("comment.line", commentStyle()),
     GrammarConfig.effacer("comment.block", docStyle()),
@@ -58,7 +56,7 @@ public class JavaConfig extends Config.Defs {
   );
 
   // map TextMate grammar scopes to Scaled syntax definitions
-  public final List<Selector.Fn> syntaxers = SC.list(
+  public final List<Selector.Fn> syntaxers = Std.list(
     GrammarConfig.syntaxer("comment.line", Syntax.LineComment()),
     GrammarConfig.syntaxer("comment.block", Syntax.DocComment()),
     GrammarConfig.syntaxer("constant", Syntax.OtherLiteral()),
@@ -74,7 +72,7 @@ public class JavaConfig extends Config.Defs {
   public Grammar javaGrammar () {
     return Grammar.parseNDF(stream("Java.ndf"));
   }
-  public final Seq<Grammar> grammars = SC.list(htmlGrammar(), javaDocGrammar(), javaGrammar());
+  public final Seq<Grammar> grammars = Std.seq(htmlGrammar(), javaDocGrammar(), javaGrammar());
 
   private JavaConfig () {
     super(false);

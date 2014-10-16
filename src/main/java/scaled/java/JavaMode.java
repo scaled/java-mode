@@ -4,9 +4,6 @@
 
 package scaled.java;
 
-import scala.Tuple2;
-import scala.collection.immutable.List;
-import scala.collection.immutable.Seq;
 import scaled.*;
 import scaled.code.CodeConfig;
 import scaled.code.Commenter;
@@ -28,7 +25,7 @@ public class JavaMode extends GrammarCodeMode {
   }
 
   @Override public List<Config.Defs> configDefs () {
-    return SC.cons(JavaConfig.INSTANCE, super.configDefs());
+    return super.configDefs().cons(JavaConfig.INSTANCE);
   }
 
   @Override public Key.Map keymap () {
@@ -49,7 +46,7 @@ public class JavaMode extends GrammarCodeMode {
 
   // TODO: val
   @Override public List<Indenter> indenters () {
-    return SC.list(
+    return Std.list(
       //    new Indenter.PairAnchorAlign(config, buffer) {
       //      protected val anchorM = Matcher.regexp("\\bfor\\b")
       //      protected val secondM = Matcher.regexp("yield\\b")

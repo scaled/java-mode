@@ -4,8 +4,6 @@
 
 package scaled.java;
 
-import scala.Option;
-
 import scaled.*;
 import scaled.code.Block;
 import scaled.code.Indenter;
@@ -40,10 +38,10 @@ public class JavaIndenter {
     public ExtendsImpls (Context ctx) { super(ctx); }
 
     public Option<Object> apply (Block block, LineV line, long pos) {
-      if (!line.matches(extendsImplsM, Loc.c(pos))) return SC.none();
+      if (!line.matches(extendsImplsM, Loc.c(pos))) return Option.none();
       else {
         long loc = buffer().findBackward(classIfaceM, pos, block.start());
-        if (loc == Loc.None()) return SC.none();
+        if (loc == Loc.None()) return Option.none();
         else {
           debug("Indenting extends/implements relative to class/interface @ " + Loc.show(loc));
           return Option.apply(indentFrom(readIndent(buffer(), loc), 2));
@@ -61,7 +59,7 @@ public class JavaIndenter {
 
     public Option<Object> apply (Block block, LineV line, long pos) {
       if (buffer().syntaxAt(pos) != Syntax.DocComment() ||
-          !Indenter.startsWith(line, starM)) return SC.none();
+          !Indenter.startsWith(line, starM)) return Option.none();
       else {
         // scan back to the first line of the comment and indent one from there; the logic is
         // slightly weirded to ensure that we don't go past the start of the buffer even if the
@@ -114,7 +112,7 @@ public class JavaIndenter {
 
     public Option<Object> apply (Block block, LineV line, long pos, long prevPos) {
       // if the current line is not a continuation, we're not applicable
-      if (!isContinued(block, pos, prevPos)) return SC.none();
+      if (!isContinued(block, pos, prevPos)) return Option.none();
       int indent;
       // if the previous line is *also* a continuation, then don't indent further
       long ppos = Loc.atCol$extension(prevPos, buffer().line(prevPos).firstNonWS());

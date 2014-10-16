@@ -4,9 +4,6 @@
 
 package scaled.java;
 
-import scala.collection.immutable.List;
-import scala.collection.immutable.Seq;
-
 import scaled.*;
 import scaled.code.CodeConfig;
 import scaled.code.Commenter;
@@ -18,20 +15,20 @@ public class PropertiesConfig extends Config.Defs {
   public static final PropertiesConfig INSTANCE = new PropertiesConfig();
 
   // map TextMate grammar scopes to Scaled style definitions
-  public final List<Selector.Fn> effacers = SC.list(
+  public final List<Selector.Fn> effacers = Std.list(
     GrammarConfig.effacer("comment.line", commentStyle()),
     GrammarConfig.effacer("keyword", keywordStyle())
   );
 
   // map TextMate grammar scopes to Scaled syntax definitions
-  public final List<Selector.Fn> syntaxers = SC.list(
+  public final List<Selector.Fn> syntaxers = Std.list(
     GrammarConfig.syntaxer("comment.line", Syntax.LineComment())
   );
 
   public Grammar propsGrammar () {
     return Grammar.parseNDF(stream("JavaProperties.ndf"));
   }
-  public final Seq<Grammar> grammars = SC.list(propsGrammar());
+  public final Seq<Grammar> grammars = Std.seq(propsGrammar());
 
   private PropertiesConfig () {
     super(false);
