@@ -23,8 +23,8 @@ public class PropertiesMode extends GrammarCodeMode {
     return super.configDefs().cons(PropertiesConfig.INSTANCE);
   }
 
-  @Override public Seq<Grammar> grammars () {
-    return PropertiesConfig.INSTANCE.grammars;
+  @Override public Grammar.Set grammars () {
+    return PropertiesConfig.INSTANCE.grammars.get();
   }
   @Override public List<Selector.Fn> effacers () {
     return PropertiesConfig.INSTANCE.effacers;
