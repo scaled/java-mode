@@ -34,8 +34,8 @@ public class JavaMode extends GrammarCodeMode {
       bind("S-ENTER", "electric-newline");
   }
 
-  @Override public Seq<Grammar> grammars () {
-    return JavaConfig.INSTANCE.grammars;
+  @Override public Grammar.Set grammars () {
+    return JavaConfig.INSTANCE.grammars.get();
   }
   @Override public List<Selector.Fn> effacers () {
     return JavaConfig.INSTANCE.effacers;

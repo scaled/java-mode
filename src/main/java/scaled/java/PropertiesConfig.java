@@ -4,6 +4,7 @@
 
 package scaled.java;
 
+import java.nio.file.Path;
 import scaled.*;
 import scaled.code.CodeConfig;
 import scaled.code.Commenter;
@@ -25,10 +26,11 @@ public class PropertiesConfig extends Config.Defs {
     GrammarConfig.syntaxer("comment.line", Syntax.LineComment())
   );
 
-  public Grammar propsGrammar () {
-    return Grammar.parseNDF(stream("JavaProperties.ndf"));
-  }
-  public final Seq<Grammar> grammars = Std.seq(propsGrammar());
+  public final PropertyV<Grammar.Set> grammars = reloadable(
+    Std.seq("JavaProperties.ndf"),
+    new scala.runtime.AbstractFunction1<Seq<Path>,Grammar.Set>() {
+      public Grammar.Set apply (Seq<Path> paths) { return Grammar.parseNDFs(paths); }
+    });
 
   private PropertiesConfig () {
     super(false);

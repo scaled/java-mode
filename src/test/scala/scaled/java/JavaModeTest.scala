@@ -42,11 +42,12 @@ class JavaModeTest {
   def html = getClass.getClassLoader.getResourceAsStream("HTML.ndf")
   def javaDoc = getClass.getClassLoader.getResourceAsStream("JavaDoc.ndf")
   def java = getClass.getClassLoader.getResourceAsStream("Java.ndf")
-  def javaProps = getClass.getClassLoader.getResourceAsStream("JavaProperties.tmLanguage")
-  val grammars = Seq(Grammar.parseNDF(html), Grammar.parseNDF(javaDoc), Grammar.parseNDF(java))
+  def javaProps = getClass.getClassLoader.getResourceAsStream("JavaProperties.ndf")
+  val grammars = Grammar.Set(
+    Seq(Grammar.parseNDF(html), Grammar.parseNDF(javaDoc), Grammar.parseNDF(java)))
 
   @Test def dumpGrammar () {
-    Grammar.parsePlist(javaProps).print(System.out)
+    Grammar.parseNDF(javaProps).print(System.out)
   }
 
   @Test def testStylesLink () {

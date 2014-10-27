@@ -4,6 +4,7 @@
 
 package scaled.java;
 
+import java.nio.file.Path;
 import scala.Tuple2;
 import scaled.*;
 import scaled.code.CodeConfig;
@@ -63,16 +64,11 @@ public class JavaConfig extends Config.Defs {
     GrammarConfig.syntaxer("string", Syntax.StringLiteral())
   );
 
-  public Grammar htmlGrammar () {
-    return Grammar.parseNDF(stream("HTML.ndf"));
-  }
-  public Grammar javaDocGrammar () {
-    return Grammar.parseNDF(stream("JavaDoc.ndf"));
-  }
-  public Grammar javaGrammar () {
-    return Grammar.parseNDF(stream("Java.ndf"));
-  }
-  public final Seq<Grammar> grammars = Std.seq(htmlGrammar(), javaDocGrammar(), javaGrammar());
+  public final PropertyV<Grammar.Set> grammars = reloadable(
+    Std.seq("HTML.ndf", "JavaDoc.ndf", "Java.ndf"),
+    new scala.runtime.AbstractFunction1<Seq<Path>,Grammar.Set>() {
+      public Grammar.Set apply (Seq<Path> paths) { return Grammar.parseNDFs(paths); }
+    });
 
   private JavaConfig () {
     super(false);
