@@ -28,12 +28,6 @@ public class JavaMode extends GrammarCodeMode {
     return super.configDefs().cons(JavaConfig.INSTANCE);
   }
 
-  @Override public Key.Map keymap () {
-    return super.keymap().
-      bind("ENTER",   "electric-newline").
-      bind("S-ENTER", "electric-newline");
-  }
-
   @Override public Grammar.Set grammars () {
     return JavaConfig.INSTANCE.grammars.get();
   }
@@ -86,18 +80,16 @@ public class JavaMode extends GrammarCodeMode {
   //
   // FNs
 
-  @Fn("Inserts a newline, then indents the subsequent line. Handles other \"smart\" cases such " +
-      "as: If newline is inserted in the middle of a Javadoc comment, the next line is prepended " +
-      "with * before indenting. TODO: other smarts.")
-  public void electricNewline () {
+  @Override public void electricNewline () {
     // shenanigans to determine whether we should auto-insert the doc prefix (* )
-    boolean inDoc = commenter().inDoc(buffer(), view().point().get().rowCol());
-    newline();
-    Loc np = view().point().get();
-    if (inDoc && buffer().charAt(np.rowCol()) != '*') {
+    if (commenter().inDoc(buffer(), view().point().get().rowCol())) {
+      newline();
+      Loc np = view().point().get();
+      if (buffer().charAt(np.rowCol()) != '*') {
         view().point().update(new Loc(commenter().insertDocPre(buffer(), np.rowCol())));
-    }
-    reindentAtPoint();
+      }
+      reindentAtPoint();
+    } else super.electricNewline();
   }
 
   // TODO: more things!
