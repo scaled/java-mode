@@ -37,14 +37,14 @@ public class JavaIndenter {
     private Matcher extendsImplsM = Matcher.regexp("(extends|implements)\\b");
     public ExtendsImpls (Context ctx) { super(ctx); }
 
-    public Option<Object> apply (Block block, LineV line, long pos) {
-      if (!line.matches(extendsImplsM, Loc.c(pos))) return Option.none();
+    public int apply (Block block, LineV line, long pos) {
+      if (!line.matches(extendsImplsM, Loc.c(pos))) return Indenter.NA();
       else {
         long loc = buffer().findBackward(classIfaceM, pos, block.start());
-        if (loc == Loc.None()) return Option.none();
+        if (loc == Loc.None()) return Indenter.NA();
         else {
           debug("Indenting extends/implements relative to class/interface @ " + Loc.show(loc));
-          return Option.apply(indentFrom(readIndent(buffer(), loc), 2));
+          return indentFrom(readIndent(buffer(), loc), 2);
         }
       }
     }
@@ -57,9 +57,9 @@ public class JavaIndenter {
     private Matcher docOpenM = Matcher.exact("/**");
     public Javadoc (Context ctx) { super(ctx); }
 
-    public Option<Object> apply (Block block, LineV line, long pos) {
+    public int apply (Block block, LineV line, long pos) {
       if (buffer().syntaxAt(pos) != Syntax.DocComment() ||
-          !Indenter.startsWith(line, starM)) return Option.none();
+          !Indenter.startsWith(line, starM)) return Indenter.NA();
       else {
         // scan back to the first line of the comment and indent one from there; the logic is
         // slightly weirded to ensure that we don't go past the start of the buffer even if the
@@ -84,7 +84,7 @@ public class JavaIndenter {
             indent = 2;
           }
         }
-        return Option.apply(readIndent(openLine) + indent);
+        return readIndent(openLine) + indent;
       }
     }
   }
@@ -110,9 +110,9 @@ public class JavaIndenter {
       return true;
     }
 
-    public Option<Object> apply (Block block, LineV line, long pos, long prevPos) {
+    public int apply (Block block, LineV line, long pos, long prevPos) {
       // if the current line is not a continuation, we're not applicable
-      if (!isContinued(block, pos, prevPos)) return Option.none();
+      if (!isContinued(block, pos, prevPos)) return Indenter.NA();
       int indent;
       // if the previous line is *also* a continuation, then don't indent further
       long ppos = Loc.atCol$extension(prevPos, buffer().line(prevPos).firstNonWS());
@@ -124,7 +124,33 @@ public class JavaIndenter {
         debug("Indenting one step from continued statement @ " + Loc.show(prevPos));
         indent = 1;
       }
-      return Option.apply(indentFrom(readIndentSkipArglist(buffer(), prevPos), indent));
+      return indentFrom(readIndentSkipArglist(buffer(), prevPos), indent);
+    }
+  }
+
+  /** If we're in a `case` statement's pseudo-block, inset this line one step from the case. */
+  public static class CaseBody extends Indenter {
+    public CaseBody (Context ctx) { super(ctx); }
+
+    private final Matcher caseColonM = Matcher.regexp("(case\\s|default).*:");
+    private final Matcher closeB = Matcher.exact("}");
+
+    public int apply (Block block, LineV line, long pos) {
+      // if we're looking at 'case ...:' or '}' then don't apply this rule
+      if (startsWith(line, caseColonM) || startsWith(line, closeB)) return Indenter.NA();
+      // otherwise if the first line after the start of our block is 'case ...:' then we're in a
+      // case pseudo block, so indent relative to the 'case' not the block
+      else {
+        // TODO: either skip comments, or search for caseArrowM and then make sure it is in our
+        // same block... meh
+        long caseLoc = Loc.nextL$extension(block.start());
+        LineV caseLine = buffer().line(caseLoc);
+        if (!startsWith(caseLine, caseColonM)) return Indenter.NA();
+        else {
+          debug("Identing one step from 'case' @ " + Loc.show(caseLoc));
+          return indentFrom(readIndent(caseLine), 1);
+        }
+      }
     }
   }
 }

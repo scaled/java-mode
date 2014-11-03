@@ -54,6 +54,7 @@ public class JavaMode extends GrammarCodeMode {
       //    new Indenter.OneLinerWithArgs(config, buffer, blocker, Set("if", "while", "for")),
       //    new Indenter.OneLinerNoArgs(config, buffer, Set("else", "do", "try", "finally")),
       new JavaIndenter.ContinuedStmt(indentCtx()),
+      new JavaIndenter.CaseBody(indentCtx()),
       new Indenter.ByBlock(indentCtx()) {
         @Override public int readBlockIndent (long pos) {
           return JavaIndenter.readBlockIndent(buffer(), pos);
