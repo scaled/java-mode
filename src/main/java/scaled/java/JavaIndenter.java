@@ -118,7 +118,7 @@ public class JavaIndenter {
       long ppos = Loc.atCol$extension(prevPos, buffer().line(prevPos).firstNonWS());
       long pPrevPos = prevNonWS(block, ppos);
       if (isContinued(block, ppos, pPrevPos)) {
-        debug("Indenting to match continued continued statement @ " + Loc.show(prevPos));
+        debug("Indenting to match continued continued statement @ " + Loc.show(ppos));
         indent = 0;
       } else {
         debug("Indenting one step from continued statement @ " + Loc.show(prevPos));
