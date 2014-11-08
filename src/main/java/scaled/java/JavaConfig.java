@@ -20,6 +20,9 @@ public class JavaConfig extends Config.Defs {
 
   public static final JavaConfig INSTANCE = new JavaConfig();
 
+  @Var("If true, switch blocks are indented one step.")
+  public final Config.Key<Boolean> indentSwitchBlock = key(Boolean.FALSE);
+
   // map TextMate grammar scopes to Scaled style definitions
   public final List<Selector.Fn> effacers = Std.list(
     // Java code colorizations
@@ -69,8 +72,4 @@ public class JavaConfig extends Config.Defs {
     new scala.runtime.AbstractFunction1<Seq<Path>,Grammar.Set>() {
       public Grammar.Set apply (Seq<Path> paths) { return Grammar.parseNDFs(paths); }
     });
-
-  private JavaConfig () {
-    super(false);
-  }
 }

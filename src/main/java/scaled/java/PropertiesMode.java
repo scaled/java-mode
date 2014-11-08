@@ -33,9 +33,6 @@ public class PropertiesMode extends GrammarCodeMode {
     return PropertiesConfig.INSTANCE.syntaxers;
   }
 
-  @Override public List<Indenter> indenters () {
-    return List.nil();
-  }
   @Override public Commenter commenter () {
     return new Commenter() {
       // TODO: ! is also a comment start character, sigh...

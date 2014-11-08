@@ -38,44 +38,13 @@ public class JavaMode extends GrammarCodeMode {
     return JavaConfig.INSTANCE.syntaxers;
   }
 
-  // TODO: val
-  @Override public List<Indenter> indenters () {
-    return Std.list(
-      //    new Indenter.PairAnchorAlign(config, buffer) {
-      //      protected val anchorM = Matcher.regexp("\\bfor\\b")
-      //      protected val secondM = Matcher.regexp("yield\\b")
-      //    },
-      //    new Indenter.TryCatchAlign(config, buffer),
-      //    new Indenter.TryFinallyAlign(config, buffer),
-      //    new Indenter.IfElseIfElseAlign(config, buffer),
-      //    new ScalaIndenter.ValueExprBody(config, buffer),
-      new JavaIndenter.ExtendsImpls(indentCtx()),
-      new JavaIndenter.Javadoc(indentCtx()),
-      //    new Indenter.OneLinerWithArgs(config, buffer, blocker, Set("if", "while", "for")),
-      //    new Indenter.OneLinerNoArgs(config, buffer, Set("else", "do", "try", "finally")),
-      new JavaIndenter.ContinuedStmt(indentCtx()),
-      new JavaIndenter.CaseBody(indentCtx()),
-      new Indenter.ByBlock(indentCtx()) {
-        @Override public int readBlockIndent (long pos) {
-          return JavaIndenter.readBlockIndent(buffer(), pos);
-        }
-      }
-    );
+  @Override public Indenter createIndenter () {
+    return new JavaIndenter(buffer(), config());
   }
 
   // TODO: val
   @Override public JavaCommenter commenter () {
     return new JavaCommenter();
-  }
-
-  @Override public int detectIndent () {
-    return new Indenter.Detecter(3) {
-      private Matcher pppM = Matcher.regexp("(public|protected|private)");
-      // if the line starts with 'public/protected/private' then it is meaningful
-      public int consider (LineV line, int start) {
-        return line.matches(pppM, start) ? 1 : 0;
-      }
-    }.detectIndent(buffer());
   }
 
   //

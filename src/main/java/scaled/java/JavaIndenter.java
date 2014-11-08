@@ -5,152 +5,95 @@
 package scaled.java;
 
 import scaled.*;
-import scaled.code.Block;
 import scaled.code.Indenter;
 import scaled.util.Chars;
 
-public class JavaIndenter {
+public class JavaIndenter extends Indenter.ByBlock {
 
-  /** Handles reading block (and pseudo-block) indent for Java code. This checks for wrapped
-    * `extends` and `implements` clauses before falling back to the standard
-    * [[readIndentSkipArglist]].
-    */
-  public static int readBlockIndent (BufferV buffer, long pos) {
-    // if we're looking at extends or implements, move back to the line that contains "class" or
-    // "interface" and indent relative to that
-    if (Indenter.startsWith(buffer.line(pos), extendsOrImplM)) {
-      long p = buffer.findBackward(classOrIfaceM, Loc.atCol$extension(pos, 0), buffer.start());
-      if  (p == Loc.None()) {
-        System.out.println("Missing (class|interface) for block on (extends|implements) line!");
-        return 0;
-      } else return Indenter.readIndent(buffer, p);
-    }
-    // otherwise fall back to readIndentSkipArglist
-    else return Indenter.readIndentSkipArglist(buffer, pos);
+  public JavaIndenter (Buffer buffer, Config config) {
+    super(buffer, config);
   }
-  private static Matcher classOrIfaceM = Matcher.regexp("\\b(class|interface)\\b");
-  private static Matcher extendsOrImplM = Matcher.regexp("(extends|implements)\\b");
 
-  /** Indents `extends` and `implements` relative to a preceding `(class|interface)` line. */
-  public static class ExtendsImpls extends Indenter {
-    private Matcher classIfaceM = Matcher.regexp("\\b(class|interface)\\b");
-    private Matcher extendsImplsM = Matcher.regexp("(extends|implements)\\b");
-    public ExtendsImpls (Context ctx) { super(ctx); }
+  // TODO: make all the things configurable
 
-    public int apply (Block block, LineV line, long pos) {
-      if (!line.matches(extendsImplsM, Loc.c(pos))) return Indenter.NA();
-      else {
-        long loc = buffer().findBackward(classIfaceM, pos, block.start());
-        if (loc == Loc.None()) return Indenter.NA();
-        else {
-          debug("Indenting extends/implements relative to class/interface @ " + Loc.show(loc));
-          return indentFrom(readIndent(buffer(), loc), 2);
+  @Override public int computeIndent (Indenter.State state, int base, LineV line, int first) {
+    // pop case statements out one indentation level
+    if (line.matches(caseColonM, first)) return base - indentWidth();
+    // bump extends/implements in two indentation levels
+    else if (line.matches(extendsImplsM, first)) return base + 2*indentWidth();
+    // otherwise do the standard business
+    else return super.computeIndent(state, base, line, first);
+  }
+
+  @Override public BlockStater createStater () {
+    return new BlockStater() {
+      @Override public State adjustStart (LineV line, int first, int last, State start) {
+        // if this line opens a block or doc comment, push a state for it
+        if (line.matches(bcOpenM, first)) {
+          // if this is a doc comment which is followed by non-whitespace, then indent to match the
+          // second star rather than the first
+          return new CommentS(line.matches(firstLineDocM, first) ? 2 : 1, start);
         }
-      }
-    }
-  }
-
-  /** Aligns subsequent and final lines in Javadoc comments on the first `*`. */
-  public static class Javadoc extends Indenter {
-    private Matcher starM = Matcher.exact("*");
-    private Matcher openM = Matcher.exact("/*");
-    private Matcher docOpenM = Matcher.exact("/**");
-    public Javadoc (Context ctx) { super(ctx); }
-
-    public int apply (Block block, LineV line, long pos) {
-      if (buffer().syntaxAt(pos) != Syntax.DocComment() ||
-          !Indenter.startsWith(line, starM)) return Indenter.NA();
-      else {
-        // scan back to the first line of the comment and indent one from there; the logic is
-        // slightly weirded to ensure that we don't go past the start of the buffer even if the
-        // situation lacks sanity
-        int row = Math.max(Loc.r(pos)-1, 0);
-        while (row > 0 && !startsWith(buffer().line(row), openM)) row -= 1;
-        // if the open comment row contains only /** then align with the first star, if it
-        // contains /** followed by text, align with the second star
-        LineV openLine = buffer().line(row);
-        int indent;
-        int opos = openLine.indexOf(docOpenM, 0);
-        if (opos == -1) {
-          debug("Aligning javadoc * with block comment start on row " + row + ".");
-          indent = 1;
-        } else {
-          int spos = openLine.indexOf(Chars.isNotWhitespace(), opos+docOpenM.matchLength());
-          if (spos == -1) {
-            debug("Aligning javadoc * with bare doc comment start on row " + row + ".");
-            indent = 1;
-          } else {
-            debug("Aligning javadoc * with textful doc comment start on row " + row + ".");
-            indent = 2;
-          }
+        else if (config().apply(JavaConfig.INSTANCE.indentSwitchBlock) &&
+                 line.matches(switchM, first)) {
+          return new SwitchS(start);
         }
-        return readIndent(openLine) + indent;
+        // otherwise leave the start as is
+        return start;
       }
-    }
-  }
 
-  /** Indents continued statements. Various heuristics are applied to determine whether or not we
-    * appear to be in a continued statement. See comments in the code for details. */
-  public static class ContinuedStmt extends Indenter.PrevLineEnd {
-    private Matcher annoM = Matcher.exact("@");
-    public ContinuedStmt (Context ctx ) { super(ctx); }
+      @Override public State adjustEnd (LineV line, int first, int last, State start, State cur) {
+        // if this line closes a doc/block comment, pop our comment state from the stack
+        if (line.indexOf(bcCloseM, 0) >= 0) cur = cur.popIf(s -> s instanceof CommentS);
 
-    protected boolean isContinued (Block block, long pos, long prevPos) {
-      char lc = buffer().charAt(pos), pc = buffer().charAt(prevPos);
-      // if the line we're indenting is a block or a comment, it's not a continuation
-      if (lc == '{' || lc == '}' || lc == '/') return false;
-      // various terminators for the continued line that render us inapplicable
-      if (pc == ';' || pc == '{' || pc == '}' || pc == ',') return false;
-      // if the line we're continuing starts with an annotation, don't apply; this is not perfect,
-      // but the vast majority of the time it's a method annotation, which should not trigger
-      // further indentation; it would be nice if we did indent further in cases like:
-      // @SuppressWarnings("unchecked") Foo<B> foo = (Foo<B>)
-      //     someFooExpr;
-      if (Indenter.startsWith(buffer().line(prevPos), annoM)) return false;
-      return true;
-    }
-
-    public int apply (Block block, LineV line, long pos, long prevPos) {
-      // if the current line is not a continuation, we're not applicable
-      if (!isContinued(block, pos, prevPos)) return Indenter.NA();
-      int indent;
-      // if the previous line is *also* a continuation, then don't indent further
-      long ppos = Loc.atCol$extension(prevPos, buffer().line(prevPos).firstNonWS());
-      long pPrevPos = prevNonWS(block, ppos);
-      if (isContinued(block, ppos, pPrevPos)) {
-        debug("Indenting to match continued continued statement @ " + Loc.show(ppos));
-        indent = 0;
-      } else {
-        debug("Indenting one step from continued statement @ " + Loc.show(prevPos));
-        indent = 1;
-      }
-      return indentFrom(readIndentSkipArglist(buffer(), prevPos), indent);
-    }
-  }
-
-  /** If we're in a `case` statement's pseudo-block, inset this line one step from the case. */
-  public static class CaseBody extends Indenter {
-    public CaseBody (Context ctx) { super(ctx); }
-
-    private final Matcher caseColonM = Matcher.regexp("(case\\s|default).*:");
-    private final Matcher closeB = Matcher.exact("}");
-
-    public int apply (Block block, LineV line, long pos) {
-      // if we're looking at 'case ...:' or '}' then don't apply this rule
-      if (startsWith(line, caseColonM) || startsWith(line, closeB)) return Indenter.NA();
-      // otherwise if the first line after the start of our block is 'case ...:' then we're in a
-      // case pseudo block, so indent relative to the 'case' not the block
-      else {
-        // TODO: either skip comments, or search for caseArrowM and then make sure it is in our
-        // same block... meh
-        long caseLoc = Loc.nextL$extension(block.start());
-        LineV caseLine = buffer().line(caseLoc);
-        if (!startsWith(caseLine, caseColonM)) return Indenter.NA();
-        else {
-          debug("Identing one step from 'case' @ " + Loc.show(caseLoc));
-          return indentFrom(readIndent(caseLine), 1);
+        // determine whether this line is continued onto the next line (heuristically)
+        if (last >= 0) {
+          char lastC = line.charAt(last);
+          boolean isContinued = (lastC == '.' || lastC == '+' || lastC == '-');
+          boolean inContinued = (cur instanceof ContinuedS);
+          if (isContinued && !inContinued) return new ContinuedS(cur);
+          else if (inContinued && !isContinued) return cur.next(); // pop the ContinuedS
         }
+
+        // otherwise we are full of normalcy
+        return cur;
       }
-    }
+
+      @Override public State closeBlock (LineV line, char close, int col, State state) {
+        State popped = super.closeBlock(line, close, col, state);
+        // if there's a SwitchS on top of the stack after we pop a } block, pop it off too
+        return (close == '}' && popped instanceof SwitchS) ? popped.next() : popped;
+      }
+    };
   }
+
+  protected static class CommentS extends Indenter.State {
+    public final int inset;
+    public CommentS (int inset, State next) {
+      super(next);
+      this.inset = inset;
+    }
+    @Override public int indent (Config config, boolean top) {
+      return inset + next().indent(config, false);
+    }
+    @Override public String show () { return "CommentS(" + inset + ")"; }
+  }
+
+  protected static class ContinuedS extends Indenter.State {
+    public ContinuedS (State next) { super(next); }
+    @Override public String show () { return "ContinuedS"; }
+  }
+
+  protected static class SwitchS extends Indenter.State {
+    public SwitchS (State next) { super(next); }
+    @Override public String show () { return "SwitchS"; }
+  }
+
+  private final Matcher caseColonM = Matcher.regexp("(case\\s|default).*:");
+  private final Matcher extendsImplsM = Matcher.regexp("(extends|implements)\\b");
+  private final Matcher switchM = Matcher.regexp("switch\\b");
+
+  private final Matcher bcOpenM = Matcher.exact("/*");
+  private final Matcher bcCloseM = Matcher.exact("*/");
+  private final Matcher firstLineDocM = Matcher.regexp("/\\*\\*\\s*\\S+");
 }
