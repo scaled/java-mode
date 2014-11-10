@@ -31,8 +31,4 @@ public class PropertiesConfig extends Config.Defs {
     new scala.runtime.AbstractFunction1<Seq<Path>,Grammar.Set>() {
       public Grammar.Set apply (Seq<Path> paths) { return Grammar.parseNDFs(paths); }
     });
-
-  private PropertiesConfig () {
-    super(false);
-  }
 }
