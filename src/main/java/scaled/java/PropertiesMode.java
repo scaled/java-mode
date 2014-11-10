@@ -5,11 +5,8 @@
 package scaled.java;
 
 import scaled.*;
-import scaled.code.CodeConfig;
 import scaled.code.Commenter;
-import scaled.code.Indenter;
 import scaled.grammar.*;
-import static scaled.code.CodeConfig.*;
 
 @Major(name="properties",
        tags={ "code", "project", "properties" },
