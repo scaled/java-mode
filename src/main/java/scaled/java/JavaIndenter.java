@@ -25,6 +25,12 @@ public class JavaIndenter extends Indenter.ByBlock {
     else return super.computeIndent(state, base, line, first);
   }
 
+  @Override public int computeCloseIndent (Indenter.BlockS state, LineV line, int first) {
+    // if the top of the stack is a switch + block, then skip both of those
+    if (state.next() instanceof SwitchS) return state.next().next().indent(config(), false);
+    else return super.computeCloseIndent(state, line, first);
+  }
+
   @Override public BlockStater createStater () {
     return new BlockStater() {
       @Override public State adjustStart (LineV line, int first, int last, State start) {
