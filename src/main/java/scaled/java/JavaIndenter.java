@@ -87,6 +87,12 @@ public class JavaIndenter extends Indenter.ByBlock {
 
   protected static class ContinuedS extends Indenter.State {
     public ContinuedS (State next) { super(next); }
+    @Override public int indent (Config config, boolean top) {
+      // if we're a continued statement directly inside an expr block, let the expr block dictate
+      // alignment rather than our standard extra indents
+      State n = next();
+      return (n instanceof ExprS) ? n.indent(config, top) : super.indent(config, top);
+    }
     @Override public String show () { return "ContinuedS"; }
   }
 
