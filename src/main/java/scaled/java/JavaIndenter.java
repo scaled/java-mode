@@ -35,7 +35,7 @@ public class JavaIndenter extends Indenter.ByBlock {
     return new BlockStater() {
       @Override public State adjustStart (LineV line, int first, int last, State start) {
         // if this line opens a block or doc comment, push a state for it
-        if (line.matches(bcOpenM, first)) {
+        if (Indenter.countComments(line, first) > 0) {
           // if this is a doc comment which is followed by non-whitespace, then indent to match the
           // second star rather than the first
           return new CommentS(line.matches(firstLineDocM, first) ? 2 : 1, start);
@@ -50,7 +50,7 @@ public class JavaIndenter extends Indenter.ByBlock {
 
       @Override public State adjustEnd (LineV line, int first, int last, State start, State cur) {
         // if this line closes a doc/block comment, pop our comment state from the stack
-        if (line.indexOf(bcCloseM, 0) >= 0) cur = cur.popIf(s -> s instanceof CommentS);
+        if (Indenter.countComments(line, first) < 0) cur = cur.popIf(s -> s instanceof CommentS);
 
         // determine whether this line is continued onto the next line (heuristically)
         if (last >= 0) {
@@ -99,7 +99,5 @@ public class JavaIndenter extends Indenter.ByBlock {
   private final Matcher extendsImplsM = Matcher.regexp("(extends|implements)\\b");
   private final Matcher switchM = Matcher.regexp("switch\\b");
 
-  private final Matcher bcOpenM = Matcher.exact("/*");
-  private final Matcher bcCloseM = Matcher.exact("*/");
   private final Matcher firstLineDocM = Matcher.regexp("/\\*\\*\\s*\\S+");
 }
