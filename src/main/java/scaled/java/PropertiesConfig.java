@@ -26,9 +26,6 @@ public class PropertiesConfig extends Config.Defs {
     GrammarConfig.syntaxer("comment.line", Syntax.LineComment())
   );
 
-  public final PropertyV<Grammar.Set> grammars = reloadable(
-    Std.seq("JavaProperties.ndf"),
-    new scala.runtime.AbstractFunction1<Seq<Path>,Grammar.Set>() {
-      public Grammar.Set apply (Seq<Path> paths) { return Grammar.parseNDFs(paths); }
-    });
+  public final PropertyV<Grammar.Set> grammars = resource(
+    "JavaProperties.ndf", Grammar.parseNDFs());
 }

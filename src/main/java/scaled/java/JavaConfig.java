@@ -67,9 +67,6 @@ public class JavaConfig extends Config.Defs {
     GrammarConfig.syntaxer("string", Syntax.StringLiteral())
   );
 
-  public final PropertyV<Grammar.Set> grammars = reloadable(
-    Std.seq("HTML.ndf", "JavaDoc.ndf", "Java.ndf"),
-    new scala.runtime.AbstractFunction1<Seq<Path>,Grammar.Set>() {
-      public Grammar.Set apply (Seq<Path> paths) { return Grammar.parseNDFs(paths); }
-    });
+  public final PropertyV<Grammar.Set> grammars = resource(
+    Std.seq("HTML.ndf", "JavaDoc.ndf", "Java.ndf"), Grammar.parseNDFs());
 }
