@@ -55,7 +55,11 @@ public class JavaIndenter extends Indenter.ByBlock {
         // determine whether this line is continued onto the next line (heuristically)
         if (last >= 0) {
           char lastC = line.charAt(last);
-          boolean isContinued = (lastC == '.' || lastC == '+' || lastC == '-');
+          boolean isContinued;
+          switch (lastC) {
+          case '.': case '+': case '-': case '?': case ':': case '=': isContinued = true; break;
+          default: isContinued = false; break;
+          }
           boolean inContinued = (cur instanceof ContinuedS);
           if (isContinued && !inContinued) return new ContinuedS(cur);
           else if (inContinued && !isContinued) return cur.next(); // pop the ContinuedS
