@@ -6,3 +6,4 @@ descrip: Provides language support for Java.
 license: New BSD
  jcopts: -source 1.8 -target 1.8 -Xlint:all
  depend: git:https://github.com/scaled/textmate-grammar.git
+ depend: git:https://github.com/scaled/project-service.git
