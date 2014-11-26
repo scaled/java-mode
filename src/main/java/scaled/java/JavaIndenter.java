@@ -57,8 +57,9 @@ public class JavaIndenter extends Indenter.ByBlock {
           char lastC = line.charAt(last);
           boolean isContinued;
           switch (lastC) {
-          case '.': case '+': case '-': case '?': case ':': case '=': isContinued = true; break;
-          default: isContinued = false; break;
+          case '.': case '+': case '-': case '?': case '=': isContinued = true; break;
+          case ':': isContinued = !line.matches(caseColonM, first); break;
+          default:  isContinued = false; break;
           }
           boolean inContinued = (cur instanceof ContinuedS);
           if (isContinued && !inContinued) return new ContinuedS(cur);
