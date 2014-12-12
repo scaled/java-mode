@@ -37,15 +37,16 @@ public class CodexJavaMode extends CodexMinorMode {
       if (encl.kind != Kind.TYPE) throw Errors.feedback(
         "The point must be inside a class declaration.");
 
-      List<Def> meths = OO.resolveMethods(codex().stores(project()), encl, this::isOverridable);
+      List<Def> meths = OO.resolveMethods(OO.linearizeSupers(codex().stores(project()), encl),
+                                          this::isOverridable);
       // remove methods defined directly in encl
       for (Iterator<Def> iter = meths.iterator(); iter.hasNext(); ) {
         if (encl.id.equals(iter.next().outerId)) iter.remove();
       }
 
       // wow, this is unfortunate
-      Completer<Def> comp = Completer.from(scaled.Iterable.view(meths),
-                                           Std.<Def,String>fn(def -> def.globalRef().id));
+      Completer<Def> comp = Completer.from(
+        Seq.view(meths), Std.<Def,String>fn(def -> def.globalRef().id));
       window().mini().read("Method:", "", methodHistory, comp).onSuccess(Std.fnU(meth -> {
         long loc = view().point().get().atCol(0);
         insertMethod(loc, meth, true);
