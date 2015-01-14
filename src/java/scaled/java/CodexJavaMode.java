@@ -26,8 +26,14 @@ public class CodexJavaMode extends CodexMinorMode {
 
   @Override public Key.Map keymap () {
     return super.keymap().
+      bind("codex-import-type",     "C-c C-i").
       bind("codex-method-override", "C-c C-m C-o");
     // TODO: codex-method-go C-c C-m C-g
+  }
+
+  @Fn("Queries for a type (completed by the project's Codex) and adds an import for it.")
+  public void codexImportType () {
+    codexRead("Type:", Kind.TYPE, Std.fnU(def -> ImportUtil.insertImport(buffer(), def.fqName())));
   }
 
   @Fn("Queries for a method in the enclosing class and inserts an override definition for it. " +
@@ -53,6 +59,9 @@ public class CodexJavaMode extends CodexMinorMode {
       }));
     }));
   }
+
+  //
+  // Implementation details
 
   private void insertMethod (long loc, Def meth, boolean leavePointInBody) {
     Buffer buffer = buffer();
