@@ -4,7 +4,6 @@
 
 package scaled.java
 
-import java.io.{File, StringReader}
 import org.junit.Assert._
 import org.junit._
 import scaled._
