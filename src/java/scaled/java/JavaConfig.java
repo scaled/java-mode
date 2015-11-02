@@ -16,7 +16,7 @@ import scaled.grammar.GrammarConfig;
 import scaled.grammar.Selector;
 import static scaled.code.CodeConfig.*;
 
-public class JavaConfig extends Config.Defs {
+public class JavaConfig extends Config.JavaDefs {
 
   public static final JavaConfig INSTANCE = new JavaConfig();
 
