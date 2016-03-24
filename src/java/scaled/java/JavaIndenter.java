@@ -21,6 +21,11 @@ public class JavaIndenter extends Indenter.ByBlock {
     if (info.startsWith(caseColonM)) return base - indentWidth();
     // bump extends/implements in two indentation levels
     else if (info.startsWith(extendsImplsM)) return base + 2*indentWidth();
+    // if the line starts with a . align it to the first . on the previous line
+    else if (info.row() > 0 && info.firstChar() == '.') {
+      int prevDot = info.buffer().line(info.row()-1).indexOf('.');
+      return prevDot >= 0 ? prevDot : super.computeIndent(state, base, info);
+    }
     // otherwise do the standard business
     else return super.computeIndent(state, base, info);
   }
