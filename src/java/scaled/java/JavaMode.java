@@ -39,7 +39,7 @@ public class JavaMode extends GrammarCodeMode {
   }
 
   @Override public Indenter createIndenter () {
-    return new JavaIndenter(buffer(), config());
+    return new JavaIndenter(config());
   }
 
   // TODO: val

@@ -10,25 +10,25 @@ import scaled.util.Chars;
 
 public class JavaIndenter extends Indenter.ByBlock {
 
-  public JavaIndenter (Buffer buffer, Config config) {
-    super(buffer, config);
+  public JavaIndenter (Config config) {
+    super(config);
   }
 
   // TODO: make all the things configurable
 
-  @Override public int computeIndent (Indenter.State state, int base, LineV line, int first) {
+  @Override public int computeIndent (Indenter.State state, int base, Indenter.Info info) {
     // pop case statements out one indentation level
-    if (line.matches(caseColonM, first)) return base - indentWidth();
+    if (info.startsWith(caseColonM)) return base - indentWidth();
     // bump extends/implements in two indentation levels
-    else if (line.matches(extendsImplsM, first)) return base + 2*indentWidth();
+    else if (info.startsWith(extendsImplsM)) return base + 2*indentWidth();
     // otherwise do the standard business
-    else return super.computeIndent(state, base, line, first);
+    else return super.computeIndent(state, base, info);
   }
 
-  @Override public int computeCloseIndent (Indenter.BlockS state, LineV line, int first) {
+  @Override public int computeCloseIndent (Indenter.BlockS state, Indenter.Info info) {
     // if the top of the stack is a switch + block, then skip both of those
     if (state.next() instanceof SwitchS) return state.next().next().indent(config(), false);
-    else return super.computeCloseIndent(state, line, first);
+    else return super.computeCloseIndent(state, info);
   }
 
   @Override public BlockStater createStater () {
