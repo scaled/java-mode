@@ -11,31 +11,13 @@ import static scaled.code.CodeConfig.*;
 /** Extends [[Commenter]] with some Javadoc smarts. */
 public class JavaCommenter extends Commenter {
 
-  public final Matcher openDocM = Matcher.exact("/**");
-  public final Matcher closeDocM = Matcher.exact("*/");
   public final Matcher atCmdM = Matcher.regexp("@[a-z]+");
-
-  public boolean inDoc (BufferV buffer, long p) {
-    LineV line = buffer.line(p);
-    return (
-      // we need to be on doc-styled text...
-      buffer.stylesNear(p).contains(docStyle()) &&
-      // and not on the open doc (/**)
-      !line.matches(openDocM, Loc.c(p)) &&
-      // and not on or after the close doc (*/)
-      (line.lastIndexOf(closeDocM, Loc.c(p)) == -1)
-    );
-  }
-
-  public long insertDocPre (Buffer buffer, long p) {
-    return buffer.insert(p, Line.apply(docPrefix()));
-  }
 
   @Override public String linePrefix () { return "//"; }
   @Override public String blockOpen () { return "/*"; }
   @Override public String blockClose () { return "*/"; }
   @Override public String blockPrefix () { return "*"; }
-  @Override public String docPrefix () { return "*"; }
+  @Override public String docOpen () { return "/**"; }
 
   @Override public CommentParagrapher mkParagrapher (Syntax syn, Buffer buf) {
     return new CommentParagrapher(syn, buf) {
@@ -51,11 +33,5 @@ public class JavaCommenter extends Commenter {
         return super.canAppend(row) && !isAtCmdLine(line(row));
       }
     };
-  }
-
-  @Override public int commentDelimLen (LineV line, int col) {
-    if (line.matches(openDocM, col)) return openDocM.matchLength();
-    else if (line.matches(closeDocM, col)) return closeDocM.matchLength();
-    else return super.commentDelimLen(line, col);
   }
 }

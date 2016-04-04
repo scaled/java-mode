@@ -47,20 +47,5 @@ public class JavaMode extends GrammarCodeMode {
     return new JavaCommenter();
   }
 
-  //
-  // FNs
-
-  @Override public void electricNewline () {
-    // shenanigans to determine whether we should auto-insert the doc prefix (* )
-    if (commenter().inDoc(buffer(), view().point().get().rowCol())) {
-      newline();
-      Loc np = view().point().get();
-      if (buffer().charAt(np.rowCol()) != '*') {
-        view().point().update(new Loc(commenter().insertDocPre(buffer(), np.rowCol())));
-      }
-      reindentAtPoint();
-    } else super.electricNewline();
-  }
-
   // TODO: more things!
 }
