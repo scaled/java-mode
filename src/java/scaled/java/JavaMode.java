@@ -43,8 +43,18 @@ public class JavaMode extends GrammarCodeMode {
   }
 
   // TODO: val
-  @Override public JavaCommenter commenter () {
-    return new JavaCommenter();
+  @Override public Commenter commenter () {
+    return new Commenter() {
+      @Override public String linePrefix () { return "//"; }
+      @Override public String blockOpen () { return "/*"; }
+      @Override public String blockClose () { return "*/"; }
+      @Override public String blockPrefix () { return "*"; }
+      @Override public String docOpen () { return "/**"; }
+
+      @Override public CommentParagrapher mkParagrapher (Syntax syn, Buffer buf) {
+        return new DocCommentParagrapher(syn, buf);
+      }
+    };
   }
 
   // TODO: more things!
