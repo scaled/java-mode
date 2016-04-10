@@ -33,13 +33,13 @@ public class CodexJavaMode extends CodexMinorMode {
 
   @Fn("Queries for a type (completed by the project's Codex) and adds an import for it.")
   public void codexImportType () {
-    codexRead("Type:", Kind.TYPE, Std.fnU(def -> ImportUtil.insertImport(buffer(), def.fqName())));
+    codexRead("Type:", Kind.TYPE, def -> ImportUtil.insertImport(buffer(), def.fqName()));
   }
 
   @Fn("Queries for a method in the enclosing class and inserts an override definition for it. " +
       "If the chosen method is already overridden, this navigates to the method instead.")
   public void codexMethodOverride () {
-    onEncloser(view().point().get().rowCol(), Std.fnU(encl -> {
+    onEncloser(view().point().get().rowCol(), encl -> {
       if (encl.kind != Kind.TYPE) throw Errors.feedback(
         "The point must be inside a class declaration.");
 
@@ -53,11 +53,11 @@ public class CodexJavaMode extends CodexMinorMode {
       // wow, this is unfortunate
       Completer<Def> comp = Completer.from(
         Seq.view(meths), Std.<Def,String>fn(def -> def.globalRef().id));
-      window().mini().read("Method:", "", methodHistory, comp).onSuccess(Std.fnU(meth -> {
+      window().mini().read("Method:", "", methodHistory, comp).onSuccess(meth -> {
         long loc = view().point().get().atCol(0);
         insertMethod(loc, meth, true);
-      }));
-    }));
+      });
+    });
   }
 
   //
