@@ -50,10 +50,6 @@ public class JavaMode extends GrammarCodeMode {
       @Override public String blockClose () { return "*/"; }
       @Override public String blockPrefix () { return "*"; }
       @Override public String docOpen () { return "/**"; }
-
-      @Override public CommentParagrapher mkParagrapher (Syntax syn, Buffer buf) {
-        return new DocCommentParagrapher(syn, buf);
-      }
     };
   }
 
