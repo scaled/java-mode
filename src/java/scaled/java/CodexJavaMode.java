@@ -26,8 +26,9 @@ public class CodexJavaMode extends CodexMinorMode {
 
   @Override public Key.Map keymap () {
     return super.keymap().
-      bind("codex-import-type",     "C-c C-i").
-      bind("codex-method-override", "C-c C-m C-o");
+      bind("codex-import-type",       "C-c C-i").
+      bind("codex-method-override",   "C-c C-m C-o").
+      bind("codex-method-implement", "C-c C-m C-i");
     // TODO: codex-method-go C-c C-m C-g
   }
 
@@ -60,10 +61,33 @@ public class CodexJavaMode extends CodexMinorMode {
     });
   }
 
+  @Fn("Adds empty overrides for all methods in the enclosing class which do not already" +
+      "have a definition in the enclosing class.")
+  public void codexMethodImplement () {
+    onEncloser(view().point().get().rowCol(), encl -> {
+      if (encl.kind != Kind.TYPE) throw Errors.feedback(
+        "The point must be inside a class declaration.");
+
+      List<Def> meths = OO.resolveMethods(OO.linearizeSupers(codex().stores(project()), encl),
+                                          this::isOverridable);
+      // remove methods defined directly in encl
+      for (Iterator<Def> iter = meths.iterator(); iter.hasNext(); ) {
+        if (encl.id.equals(iter.next().outerId)) iter.remove();
+      }
+
+      long loc = view().point().get().atCol(0);
+      boolean first = true;
+      for (Def meth : meths) {
+        loc = insertMethod(loc, meth, first);
+        first = false;
+      };
+    });
+  }
+
   //
   // Implementation details
 
-  private void insertMethod (long loc, Def meth, boolean leavePointInBody) {
+  private long insertMethod (long loc, Def meth, boolean leavePointInBody) {
     Buffer buffer = buffer();
     Sig sig = meth.sig().orElseThrow(() -> Errors.feedback("Signature unavailable for " + meth));
 
@@ -85,6 +109,8 @@ public class CodexJavaMode extends CodexMinorMode {
 
     // leave the point inside the newly created method, ready for typing!
     if (leavePointInBody) view().point().update(new Loc(inside));
+
+    return loc;
   }
 
   private boolean isOverridable (Def def) {
