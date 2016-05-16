@@ -68,8 +68,8 @@ public class CodexJavaMode extends CodexMinorMode {
       if (encl.kind != Kind.TYPE) throw Errors.feedback(
         "The point must be inside a class declaration.");
 
-      List<Def> meths = OO.resolveMethods(OO.linearizeSupers(codex().stores(project()), encl),
-                                          this::isOverridable);
+      List<Def> meths = OO.resolveMethods(
+          OO.linearizeSupers(codex().stores(window(), project()), encl), this::isOverridable);
       // remove methods defined directly in encl
       for (Iterator<Def> iter = meths.iterator(); iter.hasNext(); ) {
         if (encl.id.equals(iter.next().outerId)) iter.remove();
