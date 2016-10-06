@@ -32,6 +32,8 @@ public class PropertiesMode extends GrammarCodeMode {
 
   @Override public Commenter commenter () {
     return new Commenter() {
+      @Override public String docOpen () { return "##"; }
+      @Override public String docPrefix () { return "##"; }
       // TODO: ! is also a comment start character, sigh...
       @Override public String linePrefix () { return "#"; }
     };

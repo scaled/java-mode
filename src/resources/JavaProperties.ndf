@@ -3,7 +3,11 @@ scopeName: source.java-props
 repository:
 patterns:
  single:
-  name: comment.line.number-sign.java-props
+  name: comment.doc.java-props
+  pattern: (##)(.+)?$\n?
+  caps: 1=punctuation.definition.comment.java-props
+ single:
+  name: comment.line.java-props
   pattern: ([#!])(.+)?$\n?
   caps: 1=punctuation.definition.comment.java-props
  multi:
