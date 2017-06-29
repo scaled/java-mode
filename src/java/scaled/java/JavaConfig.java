@@ -49,11 +49,11 @@ public class JavaConfig extends Config.JavaDefs {
     GrammarConfig.effacer("entity.name.function.java", functionStyle()),
 
     GrammarConfig.effacer("variable.language", keywordStyle()),
-    GrammarConfig.effacer("variable.parameter", variableStyle()),
-    GrammarConfig.effacer("variable.other.type", variableStyle()),
+    GrammarConfig.effacer("variable", variableStyle()),
 
     // Javadoc colorizations
     GrammarConfig.effacer("markup.underline", preprocessorStyle()),
+    GrammarConfig.effacer("markup.raw.code", preprocessorStyle()),
 
     // HTML in Javadoc colorizations
     GrammarConfig.effacer("entity.name.tag", constantStyle())

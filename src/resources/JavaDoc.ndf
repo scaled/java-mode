@@ -68,9 +68,9 @@ patterns:
    multi:
     name: meta.documentation.tag.param.javadoc
     contentName: text.html
-    begin: \*\s*((\@)param)
-    bcaps: 1=keyword.other.documentation.param.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    begin: \*\s*((\@)param)\s*(\S+)
+    bcaps: 1=keyword.other.documentation.param.javadoc 2=punctuation.definition.keyword.javadoc 3=variable.other.documentation.param.javadoc
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
