@@ -8,10 +8,7 @@ import scaled.*;
 import scaled.code.CodeConfig;
 import scaled.code.Commenter;
 import scaled.code.Indenter;
-import scaled.grammar.Grammar;
 import scaled.grammar.GrammarCodeMode;
-import scaled.grammar.GrammarConfig;
-import scaled.grammar.Selector;
 
 @Major(name="java",
        tags={ "code", "project", "java" },
@@ -28,14 +25,8 @@ public class JavaMode extends GrammarCodeMode {
     return super.configDefs().cons(JavaConfig.INSTANCE);
   }
 
-  @Override public Grammar.Set grammars () {
-    return JavaConfig.INSTANCE.grammars.get();
-  }
-  @Override public List<Selector.Fn> effacers () {
-    return JavaConfig.INSTANCE.effacers;
-  }
-  @Override public List<Selector.Fn> syntaxers () {
-    return JavaConfig.INSTANCE.syntaxers;
+  @Override public String langScope () {
+    return "source.java";
   }
 
   @Override public Indenter createIndenter () {

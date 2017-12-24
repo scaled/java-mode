@@ -6,7 +6,7 @@ package scaled.java;
 
 import scaled.*;
 import scaled.code.Commenter;
-import scaled.grammar.*;
+import scaled.grammar.GrammarCodeMode;
 
 @Major(name="properties",
        tags={ "code", "project", "properties" },
@@ -16,18 +16,8 @@ public class PropertiesMode extends GrammarCodeMode {
 
   public PropertiesMode (Env env) { super(env); }
 
-  @Override public List<Config.Defs> configDefs () {
-    return super.configDefs().cons(PropertiesConfig.INSTANCE);
-  }
-
-  @Override public Grammar.Set grammars () {
-    return PropertiesConfig.INSTANCE.grammars.get();
-  }
-  @Override public List<Selector.Fn> effacers () {
-    return PropertiesConfig.INSTANCE.effacers;
-  }
-  @Override public List<Selector.Fn> syntaxers () {
-    return PropertiesConfig.INSTANCE.syntaxers;
+  @Override public String langScope () {
+    return "source.java-props";
   }
 
   @Override public Commenter commenter () {

@@ -38,12 +38,10 @@ class JavaModeTest {
     /*19*/ "   public void test (int count) {}",
     /*20*/ "}").mkString("\n")
 
-  def html = getClass.getClassLoader.getResourceAsStream("HTML.ndf")
-  def javaDoc = getClass.getClassLoader.getResourceAsStream("JavaDoc.ndf")
-  def java = getClass.getClassLoader.getResourceAsStream("Java.ndf")
-  def javaProps = getClass.getClassLoader.getResourceAsStream("JavaProperties.ndf")
-  val grammars = Grammar.Set(
-    Seq(Grammar.parseNDF(html), Grammar.parseNDF(javaDoc), Grammar.parseNDF(java)))
+  def javaDoc = getClass.getClassLoader.getResource("JavaDoc.ndf")
+  def java = getClass.getClassLoader.getResource("Java.ndf")
+  def javaProps = getClass.getClassLoader.getResource("JavaProperties.ndf")
+  val grammars = Seq(Grammar.parseNDF(javaDoc), Grammar.parseNDF(java))
 
   @Test def dumpGrammar () {
     Grammar.parseNDF(javaProps).print(System.out)
@@ -51,7 +49,8 @@ class JavaModeTest {
 
   @Test def testStylesLink () {
     val buffer = BufferImpl(new TextStore("Test.java", "", testJavaCode))
-    val scoper = new Scoper(grammars, buffer, List(new Selector.Processor(JavaConfig.INSTANCE.effacers)))
+    val scoper = Grammar.testScoper(
+      grammars, buffer, List(new Selector.Processor(new JavaGrammarPlugin().effacers)))
     // println(scoper.showMatchers(Set("#code", "#class")))
     // 0 until buffer.lines.length foreach {
     //   ll => scoper.showScopes(ll) foreach { s => println(ll + ": " + s) }}
