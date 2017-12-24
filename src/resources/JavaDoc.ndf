@@ -45,6 +45,10 @@ repository:
    name: meta.directive.value.javadoc
    pattern: (\{)((\@)value)\s*(\S+?)?\s*(\})
    caps: 1=punctuation.definition.directive.begin.javadoc 2=keyword.other.documentation.directive.value.javadoc 3=punctuation.definition.keyword.javadoc 4=variable.other.javadoc 5=punctuation.definition.directive.end.javadoc
+  single:
+   name: meta.directive.backtick.javadoc
+   pattern: `[^`]*`
+   caps: 0=constant.other.documentation.directive.value.javadoc
  invalid:
   single:
    name: invalid.illegal.missing-asterisk.javadoc
@@ -68,8 +72,8 @@ patterns:
    multi:
     name: meta.documentation.tag.param.javadoc
     contentName: text.html
-    begin: \*\s*((\@)param)\s*(\S+)
-    bcaps: 1=keyword.other.documentation.param.javadoc 2=punctuation.definition.keyword.javadoc 3=variable.other.documentation.param.javadoc
+    begin: \*\s*((\@)param)\s*\{([^}]+)\}\s*(\S+)
+    bcaps: 1=keyword.other.documentation.param.javadoc 2=punctuation.definition.keyword.javadoc 3=storage.type.other.documentation.param.javadoc 4=variable.other.documentation.param.javadoc
     end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
@@ -78,7 +82,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)return)
     bcaps: 1=keyword.other.documentation.return.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -86,7 +90,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)throws)
     bcaps: 1=keyword.other.documentation.throws.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -94,7 +98,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)exception)
     bcaps: 1=keyword.other.documentation.exception.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -102,7 +106,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)author)
     bcaps: 1=keyword.other.documentation.author.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -110,7 +114,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)version)
     bcaps: 1=keyword.other.documentation.version.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -118,7 +122,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)see)
     bcaps: 1=keyword.other.documentation.see.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -126,7 +130,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)since)
     bcaps: 1=keyword.other.documentation.since.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -134,7 +138,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)serial)
     bcaps: 1=keyword.other.documentation.serial.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -142,7 +146,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)serialField)
     bcaps: 1=keyword.other.documentation.serialField.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -150,7 +154,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)serialData)
     bcaps: 1=keyword.other.documentation.serialData.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    multi:
@@ -158,7 +162,7 @@ patterns:
     contentName: text.html
     begin: \*\s*((\@)deprecated)
     bcaps: 1=keyword.other.documentation.deprecated.javadoc 2=punctuation.definition.keyword.javadoc
-    end: (?=\s*\*\s*@)|(?=\s*\*\s*/)
+    end: (?=\s*\*\s*/)|$
     patterns:
      include: #inline
    single:
