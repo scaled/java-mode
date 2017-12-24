@@ -14,7 +14,7 @@ public class JavaGrammarPlugin extends GrammarPlugin {
   public Map<String, String> grammars () {
     return Map.<String, String>builder().
       put("source.java", "Java.ndf").
-      put("source.html.javadoc", "JavaDoc.ndf").
+      put("text.html.javadoc", "JavaDoc.ndf").
       build();
   }
 
