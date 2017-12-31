@@ -1,8 +1,8 @@
 //
-// Scaled Java Mode - a Scaled major mode for editing Java code
-// http://github.com/scaled/java-mode/blob/master/LICENSE
+// Scaled Java Mode - support for editing Java code
+// https://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.java;
+package scaled.code;
 
 import java.util.Comparator;
 import scaled.*;

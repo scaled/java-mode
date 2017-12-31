@@ -1,11 +1,10 @@
 //
-// Scaled Java Mode - a Scaled major mode for editing Java code
-// http://github.com/scaled/java-mode/blob/master/LICENSE
+// Scaled Java Mode - support for editing Java code
+// https://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.java;
+package scaled.code;
 
 import scaled.*;
-import scaled.code.Indenter;
 import scaled.util.Chars;
 
 public class JavaIndenter extends Indenter.ByBlock {
@@ -45,7 +44,7 @@ public class JavaIndenter extends Indenter.ByBlock {
           // second star rather than the first
           return new CommentS(line.matches(firstLineDocM, first) ? 2 : 1, start);
         }
-        else if (config().apply(JavaConfig.INSTANCE.indentSwitchBlock) &&
+        else if (config().apply(JavaMode.CONFIG.indentSwitchBlock) &&
                  line.matches(switchM, first)) {
           return new SwitchS(start);
         }

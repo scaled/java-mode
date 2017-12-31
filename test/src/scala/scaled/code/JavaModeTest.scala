@@ -1,14 +1,13 @@
 //
-// Scaled Java Mode - a Scaled major mode for editing Java code
-// http://github.com/scaled/java-mode/blob/master/LICENSE
+// Scaled Java Mode - support for editing Java code
+// https://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.java
+package scaled.code
 
 import org.junit.Assert._
 import org.junit._
 import scaled._
 import scaled.grammar._
-import scaled.code.CodeConfig
 import scaled.impl.BufferImpl
 
 class JavaModeTest {

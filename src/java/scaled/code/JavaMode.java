@@ -1,13 +1,10 @@
 //
-// Scaled Java Mode - a Scaled major mode for editing Java code
-// http://github.com/scaled/java-mode/blob/master/LICENSE
+// Scaled Java Mode - support for editing Java code
+// https://github.com/scaled/java-mode/blob/master/LICENSE
 
-package scaled.java;
+package scaled.code;
 
 import scaled.*;
-import scaled.code.CodeConfig;
-import scaled.code.Commenter;
-import scaled.code.Indenter;
 import scaled.grammar.GrammarCodeMode;
 
 @Major(name="java",
@@ -17,12 +14,20 @@ import scaled.grammar.GrammarCodeMode;
        desc="A major mode for editing Java language source code.")
 public class JavaMode extends GrammarCodeMode {
 
+  /** Configuration for java-mode. */
+  public static class JavaConfig extends Config.JavaDefs {
+
+    @Var("If true, switch blocks are indented one step.")
+    public final Config.Key<Boolean> indentSwitchBlock = key(Boolean.FALSE);
+  }
+  public static final JavaConfig CONFIG = new JavaConfig();
+
   public JavaMode (Env env) {
     super(env);
   }
 
   @Override public List<Config.Defs> configDefs () {
-    return super.configDefs().cons(JavaConfig.INSTANCE);
+    return super.configDefs().cons(CONFIG);
   }
 
   @Override public String langScope () {
