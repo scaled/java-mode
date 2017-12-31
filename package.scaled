@@ -11,8 +11,8 @@ license: New BSD
  depend: git:https://github.com/scaled/codex.git#java
  depend: mvn:junit:junit:4.12
  depend: mvn:org.htmlparser:htmllexer:2.1
- depend: mvn:org.ow2.asm:asm-util:5.0.1
- depend: mvn:org.ow2.asm:asm:5.0.1
+ depend: mvn:org.ow2.asm:asm-util:5.2
+ depend: mvn:org.ow2.asm:asm:5.2
  depend: mvn:org.apache.commons:commons-compress:1.15
  depend: mvn:org.scala-lang.modules:scala-xml_2.12:1.0.6
 execdep: git:https://github.com/scaled/junit-runner.git
