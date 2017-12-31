@@ -31,7 +31,7 @@ object TestNGTester {
   private val TestNGPat = Pattern.compile("""testng(.*)\.jar""")
 }
 
-abstract class TestNGTester (proj :Project) extends Tester(proj) {
+abstract class TestNGTester (proj :Project) extends Tester {
 
   // private val jrSource = "git:https://github.com/scaled/junit-runner.git"
   // private val jrMain = "scaled.junit.Main"
@@ -130,11 +130,11 @@ abstract class TestNGTester (proj :Project) extends Tester(proj) {
   }
 
   private def run (win :Window, interact :Boolean, start :Long, classes :SeqV[String],
-                   filter :String = "") :Option[Future[Unit]] =
+                   filter :String = "") :Option[Future[Tester]] =
     if (classes.isEmpty) None
     else {
       if (interact) win.emitStatus(s"Running ${classes.size} test(s) in ${proj.name}...")
-      val result = Promise[Unit]()
+      val result = Promise[Tester]()
       val buf = proj.logBuffer
       buf.replace(buf.start, buf.end, Line.fromTextNL(s"Tests started at ${new Date}..."))
 
@@ -164,7 +164,7 @@ abstract class TestNGTester (proj :Project) extends Tester(proj) {
 
         // now fork a Java process and send output to the test output buffer
         SubProcess(config, proj.metaSvc.exec, buf, { success =>
-          if (success) result.succeed(())
+          if (success) result.succeed(this)
           else result.fail(new Exception("TestNG process returned failure."))
         })
 
