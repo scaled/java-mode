@@ -131,56 +131,60 @@ public abstract class JUnitTester extends JavaTester {
   private Option<Future<Tester>> run (Window win, boolean interact, long start,
                                       SeqV<String> classes, String filter) {
     if (classes.isEmpty()) return Option.none();
-    return Option.some(Future.success(this));
-  //   else {
-  //     if (interact) win.emitStatus(s"Running ${classes.size} test(s) in ${proj.name}...")
-  //     val result = Promise[Unit]()
-  //     val buf = proj.logBuffer
-  //     buf.replace(buf.start, buf.end, Line.fromTextNL(s"Tests started at ${new Date}..."))
+    else {
+      if (interact) win.emitStatus(
+        "Running " + classes.size() + " test(s) in " + project.name() + "...", false);
+      Promise<Tester> result = new Promise<>();
+      Buffer buf = project.logBuffer();
+      buf.replace(buf.start(), buf.end(),
+                  Line.fromTextNL("Tests started at " + new Date() + "..."));
 
-  //     def patharg (elems :SeqV[AnyRef]) = elems.mkString("\t")
-  //     val args = ImmutableMap.of("classpath", patharg(testClasspath),
-  //                                "classes", patharg(classes),
-  //                                "filter", filter)
-  //     session.get.interact("test", args, new Session.Interactor() {
-  //       val fails = SeqBuffer[Failure]()
-  //       def onMessage (name :String, data :JMap[String,String]) = name match {
-  //         case "done" =>
-  //           result.succeed(())
-  //           true // session is done
+      Map<String, String> args = ImmutableMap.of(
+        "classpath", testClasspath().mkString("\t"),
+        "classes", classes.mkString("\t"),
+        "filter", filter);
+      session.get().interact("test", args, new Session.Interactor() {
+        private SeqBuffer<Failure> fails = SeqBuffer.withCapacity(16);
+        public boolean onMessage (String name, Map<String,String> data) {
+          switch (name) {
+          case "done":
+            result.succeed(JUnitTester.this);
+            return true; // session is done
 
-  //         case "between" =>
-  //           val out = data.get("output")
-  //           if (out.length > 0) buf.append(Line.fromTextNL(out))
-  //           false
+          case "between":
+            String out = data.get("output");
+            if (out.length() > 0) buf.append(Line.fromTextNL(out));
+            return false;
 
-  //         case "results" =>
-  //           val duration = System.currentTimeMillis - start
-  //           val durstr = if (duration < 1000) s"$duration ms" else s"${duration / 1000} s"
-  //           buf.append(Line.fromTextNL(s"Completed in $durstr, at ${new Date}."))
-  //           val ran = data.get("ran").toInt
-  //           // val ignored = data.get("ignored").toInt
-  //           val failed = data.get("failed").toInt
-  //           noteResults(win, interact, ran-failed, toVisits(fails))
-  //           false
+          case "results":
+            long duration = System.currentTimeMillis() - start;
+            String durstr = (duration < 1000) ? duration + " ms" : (duration / 1000) + " s";
+            buf.append(Line.fromTextNL("Completed in " + durstr + ", at " + new Date() + "."));
+            int ran = Integer.parseInt(data.get("ran"));
+            // val ignored = data.get("ignored").toInt
+            int failed = Integer.parseInt(data.get("failed"));
+            noteResults(win, interact, ran-failed, toVisits(fails));
+            return false;
 
-  //         case "started" =>
-  //           buf.append(Line.fromTextNL(s"- Started ${data.get("class")} ${data.get("method")}"))
-  //           false
+          case "started":
+            buf.append(Line.fromTextNL("- Started " + data.get("class") + " " + data.get("method")));
+            return false;
 
-  //         case "failure" =>
-  //           val (tclass, tmeth, trace) = (data.get("class"), data.get("method"), data.get("trace"))
-  //           buf.append(Line.fromTextNL(s"- Failure $tclass $tmeth"))
-  //           buf.append(Line.fromTextNL(trace))
-  //           extractFailure(trace, tclass, tmeth, fails)
-  //           false
+          case "failure":
+            String tclass = data.get("class"), tmeth = data.get("method"), trace = data.get("trace");
+            buf.append(Line.fromTextNL("- Failure " + tclass + " " + tmeth));
+            buf.append(Line.fromTextNL(trace));
+            extractFailure(trace, tclass, tmeth, fails);
+            return false;
 
-  //         case _ =>
-  //           buf.append(Line.fromTextNL(s"- Unknown message: $name"))
-  //           buf.append(Line.fromTextNL(data.toMapV.mkString("\n")))
-  //           false
-  //       }
-  //     })
-  //     Some(result)
+          default:
+            buf.append(Line.fromTextNL("- Unknown message: " + name));
+            buf.append(Line.fromTextNL(scaled.Map.view(data).mkString("\n")));
+            return false;
+          }
+        }
+      });
+      return Option.some(result);
     }
+  }
 }
