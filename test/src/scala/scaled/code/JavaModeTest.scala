@@ -50,9 +50,14 @@ class JavaModeTest {
     val buffer = BufferImpl(new TextStore("Test.java", "", testJavaCode))
     val scoper = Grammar.testScoper(
       grammars, buffer, List(new Selector.Processor(new JavaGrammarPlugin().effacers)))
+    scoper.rethinkBuffer()
     // println(scoper.showMatchers(Set("#code", "#class")))
-    // 0 until buffer.lines.length foreach {
-    //   ll => scoper.showScopes(ll) foreach { s => println(ll + ": " + s) }}
+
+    // 0 until buffer.lines.length foreach { ll =>
+    //   println(s"$ll: ${buffer.lines(ll)}")
+    //   scoper.showScopes(ll) foreach { s => println(s"$ll: $s") }
+    // }
+
     assertTrue("@link contents scoped as link",
                scoper.scopesAt(Loc(3, 61)).contains("markup.underline.link.javadoc"))
     assertEquals("@link contents styled as link",
