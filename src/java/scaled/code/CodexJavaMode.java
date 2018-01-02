@@ -13,7 +13,7 @@ import scaled.util.Chars;
 import scaled.util.Errors;
 
 @Minor(name="codex-java",
-       tags={ "java" }, stateTypes={ Project.class },
+       tags={ "java" }, stateTypes={ Codex.class },
        desc="A minor mode which enhances Java mode when a Codex is available.")
 public class CodexJavaMode extends CodexMinorMode {
 
