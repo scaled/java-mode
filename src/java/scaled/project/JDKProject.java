@@ -15,7 +15,7 @@ import scaled.pacman.JDK;
   * locating JDKs on different platforms and turning the contents of src.zip into a Codex, and
   * whatever other special casery arises.
   */
-public class JDKProject extends AbstractZipFileProject {
+public class JDKProject extends Project {
 
   @Plugin(tag="project-finder")
   public static class FinderPlugin extends ProjectFinderPlugin {
@@ -54,21 +54,22 @@ public class JDKProject extends AbstractZipFileProject {
     this.jdk = jdk;
   }
 
-  public Seq<Path> zipPaths () {
-    return Std.seq(jdk.root());
-  }
-
   @Override public Future<Meta> computeMeta (Meta oldMeta) {
+    // add a filer component for our zip file(s)
+    addComponent(Filer.class, new ZipFiler(Std.seq(jdk.root())));
+
+    // add a sources component that groks our zip-based source files
+    addComponent(Sources.class, new Sources(Std.seq(jdk.root())) {
+      @Override public Map<String, SourceSet> summarize () {
+        return Map.<String, SourceSet>builder().put(
+          "java", new SourceSet.Archive(jdk.root(), entry -> entry.getName().startsWith("java"))
+        ).build();
+      }
+    });
+
     return Future.success(new Meta(
       "jdk-" + jdk.version(),
-      Std.seq(new PlatformId(Project.JavaPlatform(), jdk.majorVersion())),
-      oldMeta.sourceDirs()
+      Std.seq(new PlatformId(Project.JavaPlatform(), jdk.majorVersion()))
     ));
-  }
-
-  @Override public Map<String, SourceSet> summarizeSources () {
-    return Map.<String, SourceSet>builder().put(
-      "java", new SourceSet.Archive(jdk.root(), entry -> entry.getName().startsWith("java"))
-    ).build();
   }
 }

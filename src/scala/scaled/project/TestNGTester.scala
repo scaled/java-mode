@@ -21,7 +21,7 @@ object TestNGTester {
     // if the classpath contains test-ng, add its tester
     if (java.buildClasspath.exists { p => TestNGPat.matcher(p.getFileName.toString).matches }) {
       project.addComponent(classOf[Tester], new TestNGTester(project) {
-        override def testSourceDirs = project.sourceDirs
+        override def testSourceDirs = project.sources.dirs
         override def testOutputDir = java.outputDir
         override def testClasspath = java.buildClasspath
       })

@@ -28,7 +28,7 @@ public abstract class JUnitTester extends JavaTester {
     // if the classpath contains junit, add its tester
     if (java.buildClasspath().exists(p -> jUnitPat.matcher(p.getFileName().toString()).matches())) {
       project.addComponent(Tester.class, new JUnitTester(project) {
-        public SeqV<Path> testSourceDirs () { return project.sourceDirs(); }
+        public SeqV<Path> testSourceDirs () { return project.sources().dirs(); }
         public Path testOutputDir () { return java.outputDir(); }
         public SeqV<Path> testClasspath () { return java.buildClasspath(); }
       });
