@@ -6,6 +6,7 @@ package scaled.project;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import scaled.*;
 
 /** Defines additional persistent data for a JVM language project. */
@@ -13,7 +14,7 @@ public class JavaMeta {
 
   /** Handles reading and writing [[JavaMeta]]s. */
   public static Project.MetaMeta<JavaMeta> META = new Project.MetaMeta<JavaMeta>() {
-    public JavaMeta zero () {
+    public JavaMeta zero (Project project) {
       return new JavaMeta(Std.seq(), Paths.get("unused"), Std.seq(), Std.seq());
     }
 
@@ -45,5 +46,20 @@ public class JavaMeta {
     this.outputDir = outputDir;
     this.buildClasspath = buildClasspath;
     this.execClasspath = execClasspath;
+  }
+
+  @Override public int hashCode () {
+    return classes.hashCode() ^ outputDir.hashCode() ^ buildClasspath.hashCode() ^
+      execClasspath.hashCode();
+  }
+
+  @Override public boolean equals (Object other) {
+    if (other instanceof JavaMeta) {
+      JavaMeta ometa = (JavaMeta)other;
+      return (Objects.equals(classes, ometa.classes) &&
+              Objects.equals(outputDir, ometa.outputDir) &&
+              Objects.equals(buildClasspath, ometa.buildClasspath) &&
+              Objects.equals(execClasspath, ometa.execClasspath));
+    } else return false;
   }
 }

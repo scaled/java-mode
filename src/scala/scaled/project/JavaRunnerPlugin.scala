@@ -35,7 +35,7 @@ class JavaRunnerPlugin (pspace :ProjectSpace) extends RunnerPlugin(pspace) {
       case None => throw Errors.feedback(
         s"Cannot find project '$pname' for execution '${exec.name}'")
 
-      case Some(proj) => proj.component(classOf[JavaComponent]) match {
+      case Some(proj) => proj.component[JavaComponent] match {
         case None => throw Errors.feedback(
             s"Project '$pname' has no Java component (execution: '${exec.name}')")
 

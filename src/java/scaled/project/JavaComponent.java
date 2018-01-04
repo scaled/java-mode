@@ -9,7 +9,7 @@ import scaled.*;
 import scaled.util.BufferBuilder;
 
 /** A component added to projects that have Java (or JVM-language) code. */
-public class JavaComponent implements Project.Component {
+public class JavaComponent extends Project.Component {
 
   /** The project of which we're a component. */
   public final Project project;

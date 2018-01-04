@@ -13,16 +13,10 @@ class JavaExtractorPlugin extends ExtractorPlugin {
   override val suffs = Set("java")
 
   override def extractor (project :Project, suff :String) =
-    if (project.isInstanceOf[JDKProject]) {
-      val jdkp = project.asInstanceOf[JDKProject]
-      Some(new JavaExtractor() {
-        override def log (msg :String) = project.log(msg)
-      }.summaryMode)
-    } else project.component(classOf[JavaComponent]) map {
-      java => new JavaExtractor() {
-        private val codex = Codex(project.pspace.wspace.editor)
-        override def classpath = java.buildClasspath
-        override def log (msg :String) = project.log(msg)
-      }
-    }
+    project.component[JavaComponent].map(java => new JavaExtractor() {
+      override def classpath = java.buildClasspath
+      override def log (msg :String) = project.log(msg)
+      // if this is a JDK project, use summary mode to avoid grinding through the amazing four
+      // hundred billion method bodies
+    }.setSummaryMode(JDKRootPlugin.find(project.root.path).isDefined))
 }
