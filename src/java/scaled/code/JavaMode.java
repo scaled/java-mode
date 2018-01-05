@@ -4,8 +4,12 @@
 
 package scaled.code;
 
+import codex.model.Kind;
 import scaled.*;
 import scaled.grammar.GrammarCodeMode;
+import scaled.project.Analyzer;
+import scaled.project.Project;
+import scaled.util.Chars;
 
 @Major(name="java",
        tags={ "code", "project", "java" },
@@ -30,6 +34,13 @@ public class JavaMode extends GrammarCodeMode {
     return super.configDefs().cons(CONFIG);
   }
 
+  @Override public Key.Map keymap () {
+    return super.keymap().
+      bind("import-type",       "C-c C-i");
+      // bind("method-override",   "C-c C-m C-o").
+      // bind("method-implement", "C-c C-m C-i");
+  }
+
   @Override public String langScope () {
     return "source.java";
   }
@@ -49,5 +60,19 @@ public class JavaMode extends GrammarCodeMode {
     };
   }
 
-  // TODO: more things!
+  @Fn("Queries for a type (completed by the analyzer) and adds an import for it.")
+  public void importType () {
+    Project project = Project.apply(buffer());
+    Analyzer analyzer = project.analyzer();
+    window().mini().read("Type:", wordAt(view().point().get()), wspace().historyRing("java-type"),
+                         analyzer.symbolCompleter(Option.some(Kind.TYPE))).onSuccess(sym -> {
+      ImportUtil.insertImport(buffer(), analyzer.fqName(sym));
+    });
+  }
+
+  /** Returns the "word" at the specified location in the buffer. */
+  protected String wordAt (Loc loc) {
+    return buffer().regionAt(loc.rowCol(), Chars.Word$.MODULE$).
+      map(line -> line.asString()).mkString();
+  }
 }

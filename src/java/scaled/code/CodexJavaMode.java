@@ -26,15 +26,9 @@ public class CodexJavaMode extends CodexMinorMode {
 
   @Override public Key.Map keymap () {
     return super.keymap().
-      bind("codex-import-type",       "C-c C-i").
       bind("codex-method-override",   "C-c C-m C-o").
       bind("codex-method-implement", "C-c C-m C-i");
     // TODO: codex-method-go C-c C-m C-g
-  }
-
-  @Fn("Queries for a type (completed by the project's Codex) and adds an import for it.")
-  public void codexImportType () {
-    codexRead("Type:", Kind.TYPE, def -> ImportUtil.insertImport(buffer(), def.fqName()));
   }
 
   @Fn("Queries for a method in the enclosing class and inserts an override definition for it. " +
@@ -45,7 +39,7 @@ public class CodexJavaMode extends CodexMinorMode {
         "The point must be inside a class declaration.");
 
       List<Def> meths = OO.resolveMethods(
-          OO.linearizeSupers(codex().stores(window(), project()), encl), this::isOverridable);
+          OO.linearizeSupers(codex().stores(project()), encl), this::isOverridable);
       // remove methods defined directly in encl
       for (Iterator<Def> iter = meths.iterator(); iter.hasNext(); ) {
         if (encl.id.equals(iter.next().outerId)) iter.remove();
@@ -69,7 +63,7 @@ public class CodexJavaMode extends CodexMinorMode {
         "The point must be inside a class declaration.");
 
       List<Def> meths = OO.resolveMethods(
-          OO.linearizeSupers(codex().stores(window(), project()), encl), this::isOverridable);
+          OO.linearizeSupers(codex().stores(project()), encl), this::isOverridable);
       // remove methods defined directly in encl
       for (Iterator<Def> iter = meths.iterator(); iter.hasNext(); ) {
         if (encl.id.equals(iter.next().outerId)) iter.remove();
