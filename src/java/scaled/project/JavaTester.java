@@ -23,6 +23,7 @@ public abstract class JavaTester extends Tester {
   public final Project project;
 
   public JavaTester (Project project) {
+    super(project);
     this.project = project;
   }
 

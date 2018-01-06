@@ -135,7 +135,7 @@ public abstract class JUnitTester extends JavaTester {
       if (interact) win.emitStatus(
         "Running " + classes.size() + " test(s) in " + project.name() + "...", false);
       Promise<Tester> result = new Promise<>();
-      Buffer buf = project.logBuffer();
+      Buffer buf = resultsBuffer();
       buf.replace(buf.start(), buf.end(),
                   Line.fromTextNL("Tests started at " + new Date() + "..."));
 

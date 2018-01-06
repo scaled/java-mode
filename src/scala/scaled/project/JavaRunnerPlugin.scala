@@ -31,7 +31,7 @@ class JavaRunnerPlugin (pspace :ProjectSpace) extends RunnerPlugin(pspace) {
     val jdk = JDK.jdks.find(_.majorVersion == jvmver) getOrElse JDK.thisJDK
     // TODO: it would be nice to issue a warning if we can't find the desired JDK
     val pname = exec.param("project")
-    pspace.allProjects.find(_._2 == pname).map(_._1).flatMap(pspace.projectIn) match {
+    pspace.allProjects.find(_._2 == pname).map(_._1).map(pspace.projectFor) match {
       case None => throw Errors.feedback(
         s"Cannot find project '$pname' for execution '${exec.name}'")
 

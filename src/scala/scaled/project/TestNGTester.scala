@@ -31,7 +31,7 @@ object TestNGTester {
   private val TestNGPat = Pattern.compile("""testng(.*)\.jar""")
 }
 
-abstract class TestNGTester (proj :Project) extends Tester {
+abstract class TestNGTester (proj :Project) extends Tester(proj) {
 
   // private val jrSource = "git:https://github.com/scaled/junit-runner.git"
   // private val jrMain = "scaled.junit.Main"
@@ -135,7 +135,7 @@ abstract class TestNGTester (proj :Project) extends Tester {
     else {
       if (interact) win.emitStatus(s"Running ${classes.size} test(s) in ${proj.name}...")
       val result = Promise[Tester]()
-      val buf = proj.logBuffer
+      val buf = resultsBuffer
       buf.replace(buf.start, buf.end, Line.fromTextNL(s"Tests started at ${new Date}..."))
 
       // TEMP: for now we just generate a TestNG XML file with our desired bits and then fork a
