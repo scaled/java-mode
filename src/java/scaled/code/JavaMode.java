@@ -8,7 +8,6 @@ import codex.model.Kind;
 import scaled.*;
 import scaled.grammar.GrammarCodeMode;
 import scaled.project.Analyzer;
-import scaled.project.Project;
 import scaled.util.Chars;
 
 @Major(name="java",
@@ -62,8 +61,7 @@ public class JavaMode extends GrammarCodeMode {
 
   @Fn("Queries for a type (completed by the analyzer) and adds an import for it.")
   public void importType () {
-    Project project = Project.apply(buffer());
-    Analyzer analyzer = project.analyzer();
+    Analyzer analyzer = Analyzer.apply(buffer());
     window().mini().read("Type:", wordAt(view().point().get()), wspace().historyRing("java-type"),
                          analyzer.symbolCompleter(Option.some(Kind.TYPE))).onSuccess(sym -> {
       ImportUtil.insertImport(buffer(), analyzer.fqName(sym));
