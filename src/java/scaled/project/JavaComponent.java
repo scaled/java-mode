@@ -23,6 +23,7 @@ public class JavaComponent extends Project.Component {
   }
 
   public SeqV<Path> classes () { return javaMetaV.get().classes; }
+  public Path targetDir () { return javaMetaV.get().targetDir; }
   public Path outputDir () { return javaMetaV.get().outputDir; }
   public SeqV<Path> buildClasspath () { return javaMetaV.get().buildClasspath; }
   public SeqV<Path> execClasspath () { return javaMetaV.get().execClasspath; }
