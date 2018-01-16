@@ -20,22 +20,22 @@ public class EclipseLangClient extends LangClient {
 
   @Plugin(tag="langserver")
   public static class EclipseLangPlugin extends LangPlugin {
-    @Override public Set<String> suffs (Path root) {
+    @Override public Set<String> suffs (Project.Root root) {
       return Std.set("java", "scala"); // TODO: others?
     }
 
-    @Override public boolean canActivate (Path root) {
-      return Files.exists(root.resolve(PROJECT_FILE));
+    @Override public boolean canActivate (Project.Root root) {
+      return Files.exists(root.path().resolve(PROJECT_FILE));
     }
 
-    @Override public Future<LangClient> createClient (Project project) {
-      return JDTLS.resolve(project).map(
-        jdtls -> new EclipseLangClient(project, serverCmd(project, jdtls)));
+    @Override public Future<LangClient> createClient (MetaService metaSvc, Project.Root root) {
+      return JDTLS.resolve(metaSvc, root).map(
+        jdtls -> new EclipseLangClient(metaSvc, root.path(), serverCmd(root, jdtls)));
     }
   }
 
   /** Constructs the command line to invoke the JDT LS daemon. */
-  private static Seq<String> serverCmd (Project project, Path jdtls) {
+  private static Seq<String> serverCmd (Project.Root root, Path jdtls) {
     String osName = System.getProperty("os.name");
     String configOS = "mac";
     if (osName.equalsIgnoreCase("linux")) configOS = "linux";
@@ -45,7 +45,7 @@ public class EclipseLangClient extends LangClient {
       throw Errors.feedback("Can't find launcher jar in " + jdtls);
     });
     Path configDir = jdtls.resolve("config_" + configOS);
-    Path dataDir = project.metaFile("eclipse-jdt-ls");
+    Path dataDir = root.path().resolve(".eclipse-jdt-ls");
 
     return Std.seq("java",
                    "-Declipse.application=org.eclipse.jdt.ls.core.id1",
@@ -60,8 +60,8 @@ public class EclipseLangClient extends LangClient {
                    "-data", dataDir.toString());
   }
 
-  public EclipseLangClient (Project project, Seq<String> cmd) {
-    super(project, cmd);
+  public EclipseLangClient (MetaService metaSvc, Path root, Seq<String> cmd) {
+    super(metaSvc, root, cmd);
   }
 
   @Override public String name () { return "Eclipse"; }
@@ -101,8 +101,7 @@ public class EclipseLangClient extends LangClient {
    */
   @JsonNotification("language/status")
   public void statusNotification(StatusReport report) {
-    boolean ephemeral = report.type.equals("Starting");
-    project().emitStatus(name() + ": " + report.message, ephemeral);
+    messages().emit(name() + ": " + report.message);
   }
 
   // TODO: tweak the stuff we get back from JDT-LS to make it nicer

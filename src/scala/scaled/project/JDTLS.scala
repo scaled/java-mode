@@ -19,18 +19,18 @@ object JDTLS {
   val JdtUrl = new URL(s"http://download.eclipse.org/jdtls/snapshots/$JdtFile")
 
   /** Downloads and unpacks the JDTLS, if needed. */
-  def resolve (project :Project) :Future[Path] = {
-    val pkgSvc = project.metaSvc.service[PackageService]
+  def resolve (metaSvc :MetaService, root :Project.Root) :Future[Path] = {
+    val pkgSvc = metaSvc.service[PackageService]
     val selfSource = "git:https://github.com/scaled/java-mode.git"
     val selfRoot = pkgSvc.installDir(selfSource)
     val jdtlsDir = selfRoot.resolve("eclipse-jdt-ls")
     if (Files.exists(jdtlsDir)) Future.success(jdtlsDir)
     else {
       val jdtPath = selfRoot.resolve(JdtFile)
-      Fetcher.fetch(project.pspace.wspace.exec, JdtUrl, jdtPath, pct => {
-        project.emitStatus(s"Downloading $JdtFile: $pct%", true)
+      Fetcher.fetch(metaSvc.exec, JdtUrl, jdtPath, pct => {
+        metaSvc.log.log(s"Downloading $JdtFile: $pct%")
       }).map(targz => {
-        project.emitStatus(s"Unpacking $JdtFile...", true)
+        metaSvc.log.log(s"Unpacking $JdtFile...")
         val jdtlsTmp = Files.createTempDirectory(selfRoot, "jdtls")
         try {
           untargz(targz, jdtlsTmp)
