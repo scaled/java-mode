@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 import java.util.regex.Pattern;
 import scaled.*;
+import scaled.pacman.JDK;
 import scaled.prococol.Session;
 import scaled.prococol.SubProcess;
 import scaled.util.BufferBuilder;
@@ -47,11 +48,21 @@ public abstract class JUnitTester extends JavaTester {
     public Session create () {
       try {
         return new Session(project.metaSvc().exec().ui(), new SubProcess.Config() {
+          private String binJava () {
+            return JDK.thisJDK.home.resolve("bin").resolve("java").toString();
+          }
           public String[] command () {
-            return new String[] { "java", "-ea", "-classpath", jrCP, jrMain };
+            return new String[] { binJava(), "-ea", jrMain };
+          }
+          public Map<String, String> environment () {
+            return ImmutableMap.of("CLASSPATH", jrCP);
           }
           public File cwd () { return project.root().path().toFile(); }
-        });
+        }) {
+          @Override protected void onErrorOutput (String text) {
+            project.metaSvc().log().log(text);
+          }
+        };
       } catch (IOException ioe) {
         throw new RuntimeException(ioe);
       }
@@ -74,8 +85,15 @@ public abstract class JUnitTester extends JavaTester {
   }
 
   @Override public void describeSelf (BufferBuilder bb) {
+    bb.addSubHeader("Tester:");
     bb.addSection("Test Sources:");
     testSourceDirs().foreach(p -> bb.add(p.toString()));
+
+    Session sess = session.peek();
+    if (sess != null) {
+      bb.addSection("Test Daemon:");
+      bb.add(sess.proc.toString());
+    }
   }
 
   @Override public void abort () {
