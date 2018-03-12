@@ -49,7 +49,10 @@ public abstract class JUnitTester extends JavaTester {
       try {
         return new Session(project.metaSvc().exec().ui(), new SubProcess.Config() {
           private String binJava () {
-            return JDK.thisJDK.home.resolve("bin").resolve("java").toString();
+            String jdkVers = jdkVersion(project);
+            JDK projJdk = Seq.view(JDK.jdks()).find(jdk -> jdk.majorVersion().equals(jdkVers)).
+              getOrElse(() -> JDK.thisJDK);
+            return projJdk.home.resolve("bin").resolve("java").toString();
           }
           public String[] command () {
             return new String[] { binJava(), "-ea", jrMain };
@@ -204,5 +207,19 @@ public abstract class JUnitTester extends JavaTester {
       });
       return Option.some(result);
     }
+  }
+
+  private static String jdkVersion (Project project) {
+    // look at the project depends to try to figure out what JDK version it uses
+    for (Project.Id id : project.depends().ids()) {
+      if (id instanceof Project.PlatformId) {
+        Project.PlatformId pid = (Project.PlatformId)id;
+        if (pid.platform().equals(Project.JavaPlatform())) {
+          return pid.version();
+        }
+      }
+    }
+    // fall back to the version of the JDK we're running
+    return JDK.thisJDK.majorVersion();
   }
 }
