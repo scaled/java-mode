@@ -28,14 +28,14 @@ public class EclipseLangClient extends LangClient {
       return Files.exists(root.path().resolve(PROJECT_FILE));
     }
 
-    @Override public Future<LangClient> createClient (MetaService metaSvc, Project.Root root) {
-      return JDTLS.resolve(metaSvc, root).map(
-        jdtls -> new EclipseLangClient(metaSvc, root.path(), serverCmd(root, jdtls)));
+    @Override public Future<LangClient> createClient (Project proj) {
+      return JDTLS.resolve(proj.metaSvc(), proj.root()).map(
+        jdtls -> new EclipseLangClient(proj.metaSvc(), proj.root().path(), serverCmd(proj, jdtls)));
     }
   }
 
   /** Constructs the command line to invoke the JDT LS daemon. */
-  private static Seq<String> serverCmd (Project.Root root, Path jdtls) {
+  private static Seq<String> serverCmd (Project proj, Path jdtls) {
     String osName = System.getProperty("os.name");
     String configOS = "mac";
     if (osName.equalsIgnoreCase("linux")) configOS = "linux";
@@ -45,7 +45,7 @@ public class EclipseLangClient extends LangClient {
       throw Errors.feedback("Can't find launcher jar in " + jdtls);
     });
     Path configDir = jdtls.resolve("config_" + configOS);
-    Path dataDir = root.path().resolve(".eclipse-jdt-ls");
+    Path dataDir = proj.metaFile("eclipse-jdt-ls");
 
     return Std.seq("java",
                    "-Declipse.application=org.eclipse.jdt.ls.core.id1",
