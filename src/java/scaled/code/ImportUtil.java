@@ -12,7 +12,7 @@ public class ImportUtil {
 
   public static final Matcher importM = Matcher.regexp("^import ");
   public static final Matcher packageM = Matcher.regexp("^package ");
-  public static final Matcher firstDefM = Matcher.regexp("(class|interface|@interface|enum)");
+  public static final Matcher firstDefM = Matcher.regexp("\\b(class|interface|@interface|enum)\\b");
 
   public static class ImportGroup {
     public final int firstRow;
