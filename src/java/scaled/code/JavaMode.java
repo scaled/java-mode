@@ -20,8 +20,8 @@ public class JavaMode extends GrammarCodeMode {
   /** Configuration for java-mode. */
   public static class JavaConfig extends Config.JavaDefs {
 
-    @Var("If true, switch blocks are indented one step.")
-    public final Config.Key<Boolean> indentSwitchBlock = key(Boolean.FALSE);
+    @Var("If true, cases inside switch blocks are indented one step.")
+    public final Config.Key<Boolean> indentCaseBlocks = key(Boolean.FALSE);
   }
   public static final JavaConfig CONFIG = new JavaConfig();
 
@@ -45,7 +45,22 @@ public class JavaMode extends GrammarCodeMode {
   }
 
   @Override public Indenter createIndenter () {
-    return new JavaIndenter(config());
+    return new BlockIndenter(config(), Std.seq(
+      // bump extends/implements in two indentation levels
+      BlockIndenter.adjustIndentWhenMatchStart(Matcher.regexp("(extends|implements)\\b"), 2),
+      // align changed method calls under their dot
+      new BlockIndenter.AlignUnderDotRule(),
+      // handle javadoc and block comments
+      new BlockIndenter.BlockCommentRule(),
+      // handle indenting switch statements properly
+      new BlockIndenter.SwitchRule() {
+        @Override public boolean indentCaseBlocks () {
+          return config().apply(JavaMode.CONFIG.indentCaseBlocks);
+        }
+      },
+      // handle continued statements, with some special sauce for : after case
+      new BlockIndenter.CLikeContStmtRule()
+    ));
   }
 
   // TODO: val
