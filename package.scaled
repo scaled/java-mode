@@ -8,7 +8,6 @@ license: New BSD
  depend: git:https://github.com/scaled/project-service.git
  depend: git:https://github.com/scaled/prococol.git
  depend: git:https://github.com/scaled/pacman.git
- depend: git:https://github.com/scaled/codex.git#java
  depend: mvn:junit:junit:4.12
  depend: mvn:org.htmlparser:htmllexer:2.1
  depend: mvn:org.ow2.asm:asm-util:6.0
