@@ -138,7 +138,8 @@ public abstract class JUnitTester extends JavaTester {
         public void visit (Kind kind, String name, List<String> path, int flags,
                            String source) {
           if (kind == Kind.TYPE) {
-            String fqClassName = path.reverse().tail().mkString(".") + "." + name;
+            String fqClassName = (path.size() <= 1) ? name :
+              path.reverse().tail().mkString(".") + "." + name;
             if (isTest(fqClassName) && filter.test(source, fqClassName)) {
               classes.append(fqClassName);
             }
