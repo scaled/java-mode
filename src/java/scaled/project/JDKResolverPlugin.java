@@ -6,6 +6,7 @@ package scaled.project;
 
 import codex.extract.SourceSet;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import scaled.*;
 import scaled.pacman.JDK;
 
@@ -25,6 +26,14 @@ public class JDKResolverPlugin extends ResolverPlugin {
             "java", new SourceSet.Archive(jdk.root(), entry -> entry.getName().startsWith("java"))
           ).build();
         }
+      });
+
+      project.addComponent(JavaComponent.class, new JavaComponent(project) {
+        public SeqV<Path> classes () { return Std.seq(); }
+        public Path targetDir () { return Paths.get("unused"); }
+        public Path outputDir () { return Paths.get("unused"); }
+        public SeqV<Path> buildClasspath () { return Std.seq(); }
+        public SeqV<Path> execClasspath () { return Std.seq(); }
       });
 
       project.metaV().update(new Project.Meta(
