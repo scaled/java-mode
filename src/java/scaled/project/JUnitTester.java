@@ -6,6 +6,7 @@ package scaled.project;
 
 import codex.model.Def;
 import codex.model.Kind;
+import codex.model.Sig;
 import com.google.common.collect.ImmutableMap;
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Map;
-import java.util.function.BiPredicate;
+import java.util.Optional;
 import java.util.regex.Pattern;
 import scaled.*;
 import scaled.pacman.JDK;
@@ -23,16 +24,12 @@ import scaled.util.BufferBuilder;
 import scaled.util.Close;
 import scaled.util.Errors;
 
-public abstract class JUnitTester extends JavaTester {
+public class JUnitTester extends JavaTester {
 
   public static void addComponent (Project project, JavaComponent java) {
     // if the classpath contains junit, add its tester
     if (java.buildClasspath().exists(p -> jUnitPat.matcher(p.getFileName().toString()).matches())) {
-      project.addComponent(Tester.class, new JUnitTester(project) {
-        public SeqV<Path> testSourceDirs () { return project.sources().dirs(); }
-        public Path testOutputDir () { return java.outputDir(); }
-        public SeqV<Path> testClasspath () { return java.buildClasspath(); }
-      });
+      project.addComponent(Tester.class, new JUnitTester(project, java));
     }
   }
 
@@ -49,7 +46,7 @@ public abstract class JUnitTester extends JavaTester {
       try {
         return new Session(project.metaSvc().exec().ui(), new SubProcess.Config() {
           private String binJava () {
-            String jdkVers = jdkVersion(project);
+            String jdkVers = "9"; // jdkVersion(project);
             JDK projJdk = Seq.view(JDK.jdks()).find(jdk -> jdk.majorVersion().equals(jdkVers)).
               getOrElse(() -> JDK.thisJDK);
             return projJdk.home.resolve("bin").resolve("java").toString();
@@ -72,19 +69,8 @@ public abstract class JUnitTester extends JavaTester {
     }
   };
 
-  /** The directory that contains our compiled test classes. */
-  public abstract Path testOutputDir ();
-  /** The test classpath. This should contain [[testOutputDir]]. */
-  public abstract SeqV<Path> testClasspath ();
-
-  /** Tests whether `className` represents a test class. Project can customize.
-    * (TODO: provide more than classname?) */
-  public boolean isTest (String className) {
-    return className.endsWith("Test");
-  }
-
-  public JUnitTester (Project proj) {
-    super(proj);
+  public JUnitTester (Project proj, JavaComponent java) {
+    super(proj, java);
   }
 
   @Override public void describeSelf (BufferBuilder bb) {
@@ -106,6 +92,13 @@ public abstract class JUnitTester extends JavaTester {
     } catch (IOException ioe) {
       ioe.printStackTrace(System.err);
     }
+  }
+
+  @Override public boolean isTestFunc (Def def) {
+    if (!super.isTestFunc(def)) return false;
+    Optional<Sig> sig = def.sig();
+    return sig.isPresent() && (sig.get().text.contains("@Test") ||
+                               sig.get().text.contains("@org.junit.Test"));
   }
 
   @Override public boolean runAllTests (Window win, boolean interact) {
@@ -130,26 +123,6 @@ public abstract class JUnitTester extends JavaTester {
       "No test class could be found for '" + elem.name + "'."); });
   }
 
-  private SeqV<String> findTestClasses (BiPredicate<String,String> filter) {
-    SeqBuffer<String> classes = SeqBuffer.withCapacity(16);
-    if (Files.exists(testOutputDir())) {
-      ByteCodex codex = ByteCodex.forDir(project.name(), testOutputDir());
-      codex.visit(new ByteCodex.Visitor() {
-        public void visit (Kind kind, String name, List<String> path, int flags,
-                           String source) {
-          if (kind == Kind.TYPE) {
-            String fqClassName = (path.size() <= 1) ? name :
-              path.reverse().tail().mkString(".") + "." + name;
-            if (isTest(fqClassName) && filter.test(source, fqClassName)) {
-              classes.append(fqClassName);
-            }
-          }
-        }
-      });
-    }
-    return classes;
-  }
-
   private Option<Future<Tester>> run (Window win, boolean interact, long start,
                                       SeqV<String> classes, String filter) {
     if (classes.isEmpty()) return Option.none();
@@ -161,8 +134,9 @@ public abstract class JUnitTester extends JavaTester {
       buf.replace(buf.start(), buf.end(),
                   Line.fromTextNL("Tests started at " + new Date() + "..."));
 
+      SeqV<Path> testClasspath = java.classes().concat(java.buildClasspath());
       Map<String, String> args = ImmutableMap.of(
-        "classpath", testClasspath().mkString("\t"),
+        "classpath", testClasspath.mkString("\t"),
         "classes", classes.mkString("\t"),
         "filter", filter);
       session.get().interact("test", args, new Session.Interactor() {

@@ -10,7 +10,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -22,19 +22,18 @@ public abstract class JavaTester extends Tester {
   /** The project whose code we're testing. */
   public final Project project;
 
-  public JavaTester (Project project) {
+  /** The java component of the project we're testing. */
+  public final JavaComponent java;
+
+  public JavaTester (Project project, JavaComponent java) {
     super(project);
     this.project = project;
+    this.java = java;
   }
 
   /** The directory that contains our test source files. */
-  public abstract SeqV<Path> testSourceDirs ();
-
-  @Override public boolean isTestFunc (Def def) {
-    if (!super.isTestFunc(def)) return false;
-    Optional<Sig> sig = def.sig();
-    return sig.isPresent() && (sig.get().text.contains("@Test") ||
-                               sig.get().text.contains("@org.junit.Test"));
+  public SeqV<Path> testSourceDirs () {
+    return project.sources().dirs();
   }
 
   private static String basename (String name) {
@@ -55,6 +54,35 @@ public abstract class JavaTester extends Tester {
       // TODO: prefer foo/bar/BazTest over foo/qux/BazTest for foo/bar/Baz
       return files.headOption();
     }
+  }
+
+  /** Tests whether `className` represents a test class. Project can customize.
+    * (TODO: provide more than classname?) */
+  public boolean isTestClass (String className) {
+    return className.endsWith("Test");
+  }
+
+  protected SeqV<String> findTestClasses (BiPredicate<String,String> filter) {
+    SeqBuffer<String> classes = SeqBuffer.withCapacity(16);
+    java.classes().foreach(dir -> {
+      if (Files.exists(dir)) {
+        ByteCodex codex = ByteCodex.forDir(project.name(), dir);
+        codex.visit(new ByteCodex.Visitor() {
+          public void visit (Kind kind, String name, List<String> path, int flags,
+                             String source) {
+            if (kind == Kind.TYPE) {
+              String fqClassName = (path.size() <= 1) ? name :
+                path.reverse().tail().mkString(".") + "." + name;
+              if (isTestClass(fqClassName) && filter.test(source, fqClassName)) {
+                classes.append(fqClassName);
+              }
+            }
+          }
+        });
+      }
+      return null;
+    });
+    return classes;
   }
 
   protected void extractFailure (String trace, String tclass, String tmeth,

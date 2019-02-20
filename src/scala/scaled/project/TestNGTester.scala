@@ -20,18 +20,14 @@ object TestNGTester {
   def addComponent (project :Project, java :JavaComponent) {
     // if the classpath contains test-ng, add its tester
     if (java.buildClasspath.exists { p => TestNGPat.matcher(p.getFileName.toString).matches }) {
-      project.addComponent(classOf[Tester], new TestNGTester(project) {
-        override def testSourceDirs = project.sources.dirs
-        override def testOutputDir = java.outputDir
-        override def testClasspath = java.buildClasspath
-      })
+      project.addComponent(classOf[Tester], new TestNGTester(project, java))
     }
   }
 
   private val TestNGPat = Pattern.compile("""testng(.*)\.jar""")
 }
 
-abstract class TestNGTester (proj :Project) extends Tester(proj) {
+class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj, java) {
 
   // private val jrSource = "git:https://github.com/scaled/junit-runner.git"
   // private val jrMain = "scaled.junit.Main"
@@ -47,17 +43,6 @@ abstract class TestNGTester (proj :Project) extends Tester(proj) {
   //   })
   // }
 
-  /** The directory that contains our test source files. */
-  def testSourceDirs :SeqV[Path]
-  /** The directory that contains our compiled test classes. */
-  def testOutputDir :Path
-  /** The test classpath. This should contain [[testOutputDir]]. */
-  def testClasspath :SeqV[Path]
-
-  /** Tests whether `className` represents a test class. Project can customize. (TODO: provide more
-    * than classname?) */
-  def isTest (className :String) = className.endsWith("Test") || className.startsWith("Test")
-
   override def describeSelf (bb :BufferBuilder) {
     bb.addSection("Test Sources:")
     testSourceDirs foreach { p => bb.add(p.toString) }
@@ -68,28 +53,11 @@ abstract class TestNGTester (proj :Project) extends Tester(proj) {
                                          sig.get.text.contains("@org.testng.annotations.Test"))
   }
 
+  override def isTestClass (name :String) = (name endsWith "Test") || (name startsWith "Test")
+
   override def abort () {
     // session.get.forceClose()
     // session.close()
-  }
-
-  override def findTestFile (file :Path) = {
-    def basename (name :String) = name.lastIndexOf(".") match {
-      case -1 => name
-      case ii => name.substring(0, ii)
-    }
-    val fbase = basename(file.getFileName.toString)
-    if (isTest(fbase)) Some(file)
-    else {
-      val files = SeqBuffer[Path]()
-      val testName = fbase + "Test"
-      onTestSources { file =>
-        if (basename(file.getFileName.toString) == testName) files += file
-        true
-      }
-      // TODO: prefer foo/bar/BazTest over foo/qux/BazTest for foo/bar/Baz
-      files.headOption
-    }
   }
 
   override def runAllTests (win :Window, interact :Boolean) = {
@@ -110,23 +78,6 @@ abstract class TestNGTester (proj :Project) extends Tester(proj) {
     val source = file.getFileName.toString
     val result = run(win, true, start, findTestClasses((src,_) => src == source), elem.name)
     result || { throw Errors.feedback(s"No test class could be found for '${elem.name}'.") }
-  }
-
-  private def findTestClasses (filter :(String,String) => Boolean) :SeqV[String] = {
-    val classes = SeqBuffer[String]()
-    if (Files.exists(testOutputDir)) {
-      val codex = ByteCodex.forDir(proj.name, testOutputDir)
-      codex.visit(new ByteCodex.Visitor() {
-        def visit (kind :Kind, name :String, path :List[String],
-                   flags :ByteCodex.Flags, source :String) {
-          if (kind == Kind.TYPE) {
-            val fqClassName = path.reverse.tail.mkString(".") + "." + name
-            if (isTest(fqClassName) && filter(source, fqClassName)) classes += fqClassName
-          }
-        }
-      })
-    }
-    classes
   }
 
   private def run (win :Window, interact :Boolean, start :Long, classes :SeqV[String],
@@ -157,7 +108,8 @@ abstract class TestNGTester (proj :Project) extends Tester(proj) {
         result.onComplete { _ => Files.delete(xmlTemp) }
         Files.write(xmlTemp, xmlPre ++ xmlClasses ++ xmlPost)
 
-        val cmd = Seq("java", "-classpath", testClasspath.mkString(":"),
+        val testCP = java.classes ++ java.buildClasspath
+        val cmd = Seq("java", "-classpath", testCP.mkString(":"),
                       "org.testng.TestNG", "-usedefaultlisteners", "false",
                       xmlTemp.toString())
         val config = SubProcess.Config(cmd.toArray, cwd=proj.root.path)
