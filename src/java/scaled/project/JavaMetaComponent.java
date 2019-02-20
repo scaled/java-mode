@@ -20,8 +20,6 @@ public class JavaMetaComponent extends JavaComponent {
   }
 
   @Override public SeqV<Path> classes () { return javaMetaV.get().classes; }
-  @Override public Path targetDir () { return javaMetaV.get().targetDir; }
-  @Override public Path outputDir () { return javaMetaV.get().outputDir; }
   @Override public SeqV<Path> buildClasspath () { return javaMetaV.get().buildClasspath; }
   @Override public SeqV<Path> execClasspath () { return javaMetaV.get().execClasspath; }
 }
