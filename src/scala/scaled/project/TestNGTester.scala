@@ -4,7 +4,6 @@
 
 package scaled.project
 
-import codex.model.{Def, Kind}
 import com.google.common.collect.ImmutableMap
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, FileVisitResult, Path, Paths, SimpleFileVisitor}
@@ -48,9 +47,9 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
     testSourceDirs foreach { p => bb.add(p.toString) }
   }
 
-  override def isTestFunc (df :Def) = super.isTestFunc(df) && {
-    val sig = df.sig ; sig.isPresent && (sig.get.text.contains("@Test") ||
-                                         sig.get.text.contains("@org.testng.annotations.Test"))
+  override def isTestFunc (df :Intel.Defn) = super.isTestFunc(df) && {
+    val sig = df.sig ; sig.isDefined && (sig.get.contains("@Test") ||
+                                         sig.get.contains("@org.testng.annotations.Test"))
   }
 
   override def isTestClass (name :String) = (name endsWith "Test") || (name startsWith "Test")
@@ -65,7 +64,7 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
     run(win, interact, start, findTestClasses((_,_) => true)).isDefined
   }
 
-  override def runTests (win :Window, interact :Boolean, file :Path, types :SeqV[Def]) = {
+  override def runTests (win :Window, interact :Boolean, file :Path) = {
     val start = System.currentTimeMillis
     val source = file.getFileName.toString
     // this is not perfectly accurate because one may have multiple test compilation units with the
@@ -73,7 +72,7 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
     run(win, interact, start, findTestClasses((src,_) => src == source)).isDefined
   }
 
-  override def runTest (win :Window, file :Path, elem :Def) = {
+  override def runTest (win :Window, file :Path, elem :Intel.Defn) = {
     val start = System.currentTimeMillis
     val source = file.getFileName.toString
     val result = run(win, true, start, findTestClasses((src,_) => src == source), elem.name)

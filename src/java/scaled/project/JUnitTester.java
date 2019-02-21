@@ -14,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
 import java.util.Map;
-import java.util.Optional;
 import java.util.regex.Pattern;
 import scaled.*;
 import scaled.pacman.JDK;
@@ -94,11 +93,10 @@ public class JUnitTester extends JavaTester {
     }
   }
 
-  @Override public boolean isTestFunc (Def def) {
+  @Override public boolean isTestFunc (Intel.Defn def) {
     if (!super.isTestFunc(def)) return false;
-    Optional<Sig> sig = def.sig();
-    return sig.isPresent() && (sig.get().text.contains("@Test") ||
-                               sig.get().text.contains("@org.junit.Test"));
+    String sig = def.sig().isDefined() ? def.sig().get() : "";
+    return sig.contains("@Test") || sig.contains("@org.junit.Test");
   }
 
   @Override public boolean runAllTests (Window win, boolean interact) {
@@ -106,7 +104,7 @@ public class JUnitTester extends JavaTester {
     return run(win, interact, start, findTestClasses((src, fqcl) -> true), "").isDefined();
   }
 
-  @Override public boolean runTests (Window win, boolean interact, Path file, SeqV<Def> types) {
+  @Override public boolean runTests (Window win, boolean interact, Path file) {
     long start = System.currentTimeMillis();
     String source = file.getFileName().toString();
     // this is not perfectly accurate because one may have multiple test compilation units with the
@@ -115,12 +113,13 @@ public class JUnitTester extends JavaTester {
     return run(win, interact, start, tclasses, "").isDefined();
   }
 
-  @Override public Future<Tester> runTest (Window win, Path file, Def elem) {
+  @Override public Future<Tester> runTest (Window win, Path file, Intel.Defn elem) {
+    System.out.println("Running " + elem + " test...");
     long start = System.currentTimeMillis();
     String source = file.getFileName().toString();
     SeqV<String> tclasses = findTestClasses((src, fqcl) -> src.equals(source));
-    return run(win, true, start, tclasses, elem.name).getOrElse(() -> { throw Errors.feedback(
-      "No test class could be found for '" + elem.name + "'."); });
+    return run(win, true, start, tclasses, elem.name()).getOrElse(() -> { throw Errors.feedback(
+      "No test class could be found for '" + elem.name() + "'."); });
   }
 
   private Option<Future<Tester>> run (Window win, boolean interact, long start,
