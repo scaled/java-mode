@@ -93,10 +93,16 @@ public class JUnitTester extends JavaTester {
     }
   }
 
-  @Override public boolean isTestFunc (Intel.Defn def) {
-    if (!super.isTestFunc(def)) return false;
-    String sig = def.sig().isDefined() ? def.sig().get() : "";
-    return sig.contains("@Test") || sig.contains("@org.junit.Test");
+  @Override public Option<Intel.Defn> findTestFunc (Ordered<Intel.Defn> defns) {
+    // if we have signatures, find the first enclosing function with an @Test annotation; otherwise
+    // fall back to the default of the nearest enclosing function
+    for (Intel.Defn defn : defns) {
+      if (defn.kind() == Kind.FUNC) {
+        String sig = defn.sig().isDefined() ? defn.sig().get() : "";
+        if (sig.contains("@Test") || sig.contains("@org.junit.Test")) return Option.some(defn);
+      }
+    }
+    return super.findTestFunc(defns);
   }
 
   @Override public boolean runAllTests (Window win, boolean interact) {
@@ -114,7 +120,7 @@ public class JUnitTester extends JavaTester {
   }
 
   @Override public Future<Tester> runTest (Window win, Path file, Intel.Defn elem) {
-    System.out.println("Running " + elem + " test...");
+    System.out.println("Running " + elem.name() + " test...");
     long start = System.currentTimeMillis();
     String source = file.getFileName().toString();
     SeqV<String> tclasses = findTestClasses((src, fqcl) -> src.equals(source));

@@ -4,6 +4,7 @@
 
 package scaled.project
 
+import codex.model.Kind
 import com.google.common.collect.ImmutableMap
 import java.nio.file.attribute.BasicFileAttributes
 import java.nio.file.{Files, FileVisitResult, Path, Paths, SimpleFileVisitor}
@@ -47,9 +48,12 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
     testSourceDirs foreach { p => bb.add(p.toString) }
   }
 
-  override def isTestFunc (df :Intel.Defn) = super.isTestFunc(df) && {
-    val sig = df.sig ; sig.isDefined && (sig.get.contains("@Test") ||
-                                         sig.get.contains("@org.testng.annotations.Test"))
+  override def findTestFunc (defns :Ordered[Intel.Defn]) = {
+    // if we have signatures, find the first enclosing function with an @Test annotation; otherwise
+    // fall back to the default of the nearest enclosing function
+    def isTestSig (sig :String) = sig.contains("@Test") || sig.contains("@org.testng.annotations.Test")
+    def isTestFn (df :Intel.Defn) = df.kind == Kind.FUNC && isTestSig(df.sig || "")
+    defns.find(isTestFn) orElse super.findTestFunc(defns)
   }
 
   override def isTestClass (name :String) = (name endsWith "Test") || (name startsWith "Test")
