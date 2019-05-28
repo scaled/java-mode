@@ -85,6 +85,10 @@ public class JUnitTester extends JavaTester {
   }
 
   @Override public void abort () {
+    reset();
+  }
+
+  @Override public void reset () {
     try {
       session.get().forceClose();
       session.close();
