@@ -4,6 +4,7 @@
 
 package scaled.project;
 
+import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -81,16 +82,16 @@ public class EclipseLangClient extends LangClient {
   }
 
   /** Fetches the contents for a "synthetic" location, one hosted by the language server. */
-  @Override public Future<String> fetchContents (Location loc, Executor exec) {
+  @Override public Future<String> fetchContents (URI uri, Executor exec) {
     try {
-      TextDocumentIdentifier docId = new TextDocumentIdentifier(loc.getUri());
+      TextDocumentIdentifier docId = new TextDocumentIdentifier(uri.toString());
       return LSP.adapt(getJavaExtensions().classFileContents(docId), exec);
     } catch (Exception e) {
       throw new RuntimeException(e.getMessage(), e);
     }
   }
 
-  @Override public String modeFor (Location loc) { return "java"; }
+  @Override public String modeFor (URI loc) { return "java"; }
 
   private EclipseLangServer.JavaExtensions getJavaExtensions () {
     return ((EclipseLangServer)server()).getJavaExtensions();
