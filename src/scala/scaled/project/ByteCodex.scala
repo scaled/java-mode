@@ -49,7 +49,7 @@ object ByteCodex {
   }
 
   def forJar (name :String, jarFile :Path) :ByteCodex = new ByteCodex(name) {
-    override protected def onClasses (fn :(String, ClassReader) => Unit) {
+    override protected def onClasses (fn :(String, ClassReader) => Unit) :Unit = {
       val jfile = new JarFile(jarFile.toFile)
       val entries = jfile.entries()
       while (entries.hasMoreElements) {
@@ -61,7 +61,7 @@ object ByteCodex {
   }
 
   def forDir (name :String, root :Path) :ByteCodex = new ByteCodex(name) {
-    override protected def onClasses (fn :(String, ClassReader) => Unit) {
+    override protected def onClasses (fn :(String, ClassReader) => Unit) :Unit = {
       Files.walkFileTree(root, new SimpleFileVisitor[Path]() {
         override def visitFile (file :Path, attrs :BasicFileAttributes) = {
           if (!attrs.isDirectory) {
@@ -130,7 +130,7 @@ object ByteCodex {
       node
     }
 
-    def reinit (kind :Kind, acc :Int, desc :String, sig :String) {
+    def reinit (kind :Kind, acc :Int, desc :String, sig :String) :Unit = {
       this.kind = kind
       this.acc = new Flags(acc)
       this.desc = desc
@@ -145,19 +145,19 @@ object ByteCodex {
       else s"$name$desc"
     }
 
-    def dump (indent :String) {
+    def dump (indent :String) :Unit = {
       println("$indent$this")
       val nindent = s"$indent  "
       kids.values foreach { _.dump(nindent) }
     }
 
-    def visit (path :List[String], vis :Visitor) {
+    def visit (path :List[String], vis :Visitor) :Unit = {
       vis.visit(kind, name, path, acc, src)
       val npath = name :: path
       kids.values foreach { _.visit(npath, vis) }
     }
 
-    def visit (fn :Node => Unit) {
+    def visit (fn :Node => Unit) :Unit = {
       fn(this)
       kids.values foreach { _.visit(fn) }
     }
@@ -208,9 +208,9 @@ abstract class ByteCodex (name :String) {
   // /** Adds to `into` all elements whose name starts with `name` (if `prefix`) or equals `name` (if
   //   * not `prefix`) and which match `kinds`. `name` should be all lower case and names will be
   //   * matched case insensitively. */
-  // def find (query :Query, into :Seq.Builder[Element]) {
+  // def find (query :Query, into :Seq.Builder[Element]) :Unit = {
   //   println(s"Finding $query in $name")
-  //   def add (ns :Iterable[Node]) {
+  //   def add (ns :Iterable[Node]) :Unit = {
   //     val iter = ns.iterator ; var ii = 0 ; while (iter.hasNext) {
   //       val node = iter.next
   //       if (query.matches(node)) into += node.toElement
@@ -221,12 +221,12 @@ abstract class ByteCodex (name :String) {
   // }
 
   /** Visits every element in this codex. */
-  def visit (vis :Visitor) {
+  def visit (vis :Visitor) :Unit = {
     root.visit(Nil, vis)
   }
 
   /** Dumps a debugging representation of this codex to stdout. */
-  def dump () {
+  def dump () :Unit = {
     root.dump("")
   }
 
@@ -260,7 +260,7 @@ abstract class ByteCodex (name :String) {
       if (node.name.length > 0) nodes(node.name, true) += node
       // else println(s"Dropping $node")
 
-    def apply (name :String, fn :Iterable[Node] => Unit) {
+    def apply (name :String, fn :Iterable[Node] => Unit) :Unit = {
       def apply (ns :SeqBuffer[Node]) = if (ns != null) fn(ns)
       if (name.length == 1) nodes(slot(name.charAt(0))) foreach(apply)
       else apply(nodes(name, false))
@@ -308,13 +308,13 @@ abstract class ByteCodex (name :String) {
         null
       }
 
-      override def visitAttribute (attr :Attribute) {
+      override def visitAttribute (attr :Attribute) :Unit = {
         // println(s"Field.visitAttribute($attr)")
       }
     }
 
     private val methoder = new MethodVisitor(Opcodes.ASM5) {
-      override def visitParameter (name :String, access :Int) {
+      override def visitParameter (name :String, access :Int) :Unit = {
         println(s"Field.visitParameter($name, ${accessToString(access)})")
       }
 
@@ -334,30 +334,30 @@ abstract class ByteCodex (name :String) {
         null
       }
 
-      override def visitAttribute (attr :Attribute) {
+      override def visitAttribute (attr :Attribute) :Unit = {
         println(s"Method.visitAttribute($attr)")
       }
 
-      override def visitLineNumber (line :Int, start :Label) {
+      override def visitLineNumber (line :Int, start :Label) :Unit = {
         println(s"Method.visitLineNumber($line, $start)")
       }
     }
 
     override def visit (version :Int, access :Int, name :String, sig :String,
-                        superName :String, ifcs :Array[String]) {
+                        superName :String, ifcs :Array[String]) :Unit = {
       // println(s"-- visit($version, ${accessToString(access)}, $name, $sig, $superName, ${ifcs.mkString(" ")})")
       cnode = (decompose(name) :\ root) { (p, n) => n.get(p) }
       cnode.reinit(Kind.TYPE, access, null, sig)
       // TODO: incorporate super class and interfaces into model?
     }
 
-    override def visitSource (source :String, debug :String) {
+    override def visitSource (source :String, debug :String) :Unit = {
       // println(s"visitSource($source, $debug)")
       cnode.src = source
       if (debug != null) println(s"LOOK MA, debug: $debug")
     }
 
-    override def visitOuterClass (owner :String, name :String, desc :String) {
+    override def visitOuterClass (owner :String, name :String, desc :String) :Unit = {
       // println(s"visitOuterClass($owner, $name, $desc)")
     }
 
@@ -374,11 +374,11 @@ abstract class ByteCodex (name :String) {
       null
     }
 
-    override def visitAttribute (attr :Attribute) {
+    override def visitAttribute (attr :Attribute) :Unit = {
       // println(s"visitAttribute($attr)")
     }
 
-    override def visitInnerClass (name :String, outerName :String, innerName :String, access :Int) {
+    override def visitInnerClass (name :String, outerName :String, innerName :String, access :Int) :Unit = {
       // println(s"visitInnerClass($name, $outerName, $innerName, ${accessToString(access)})")
     }
 
@@ -400,7 +400,7 @@ abstract class ByteCodex (name :String) {
       }
     }
 
-    override def visitEnd () {
+    override def visitEnd () :Unit = {
       // println(s"visitEnd()")
       cnode = null
       mnode = null

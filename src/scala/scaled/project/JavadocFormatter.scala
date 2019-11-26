@@ -45,13 +45,13 @@ class JavadocFormatterPlugin extends DocFormatterPlugin("java") {
     val tags = chunks.tail.toList
 
     new DocFormatterPlugin.Format() {
-      override def summary (indent :String, bb :BufferBuilder) {
+      override def summary (indent :String, bb :BufferBuilder) :Unit = {
         val df = new DocFiller(indent, bb)
         format(df, firstLine(descrip))
         df.para() // flush last paragraph
       }
 
-      override def full (indent :String, bb :BufferBuilder) {
+      override def full (indent :String, bb :BufferBuilder) :Unit = {
         val df = new DocFiller(indent, bb)
         format(df, descrip)
         tags.foreach(formatTag(df, _))
@@ -61,7 +61,7 @@ class JavadocFormatterPlugin extends DocFormatterPlugin("java") {
       private val DocStyle = CodeConfig.docStyle
       private val CodeStyle = EditorConfig.textStyle
 
-      private def formatTag (df :DocFiller, text :String) {
+      private def formatTag (df :DocFiller, text :String) :Unit = {
         val ws = nextws(text, 0) ; val tag = text.substring(0, ws)
         df.list(tag + " ", CodeConfig.preprocessorStyle)
         val styleFirst = (tag == "@param" || tag == "@throws")
@@ -75,10 +75,10 @@ class JavadocFormatterPlugin extends DocFormatterPlugin("java") {
         }
       }
 
-      private def format (df :DocFiller, text :String) {
+      private def format (df :DocFiller, text :String) :Unit = {
         // split the Javadoc up into HTML regions and {@tag} regions so as to avoid running the
         // latter regions through the HTML lexer, which causes antics
-        @inline @tailrec def loop (pos :Int) {
+        @inline @tailrec def loop (pos :Int) :Unit = {
           val nextTag = text.indexOf("{@", pos)
           if (nextTag == -1) appendHTML(text.substring(pos), df)
           else {
@@ -104,7 +104,7 @@ class JavadocFormatterPlugin extends DocFormatterPlugin("java") {
         loop(0)
       }
 
-      private def appendHTML (text :String, df :DocFiller) {
+      private def appendHTML (text :String, df :DocFiller) :Unit = {
         val lexer = new Lexer(text)
         var style = DocStyle
         var node = lexer.nextNode(false) ; while (node != null) {
@@ -151,7 +151,7 @@ class JavadocFormatterPlugin extends DocFormatterPlugin("java") {
         buf
       }
 
-      private def appendTag (text :String, df :DocFiller) {
+      private def appendTag (text :String, df :DocFiller) :Unit = {
         // determine the body start and tag text (skip {@ when extracting tag)
         val start = nextws(text, 0) ; val tag = text.substring(2, start)
         def closepos (l :String) = l.length-(if (l endsWith "}") 1 else 0)

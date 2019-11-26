@@ -101,7 +101,7 @@ public class EclipseLangClient extends LangClient {
    * Notifies us of the JDT LS status. (Eclipse JDT LS extension)
    */
   @JsonNotification("language/status")
-  public void statusNotification(StatusReport report) {
+  public void statusNotification (StatusReport report) {
     messages().emit(name() + ": " + report.message);
   }
 

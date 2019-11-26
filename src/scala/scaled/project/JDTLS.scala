@@ -54,7 +54,7 @@ object JDTLS {
   }
 
   /** Unpacks the .tar.gz file at `path` into the `into` directory. */
-  def untargz (path :Path, into :Path) {
+  def untargz (path :Path, into :Path) :Unit = {
     using(new GzipCompressorInputStream(Files.newInputStream(path))) { gzin =>
       val tin = new TarArchiveInputStream(gzin)
       var entry = tin.getNextTarEntry

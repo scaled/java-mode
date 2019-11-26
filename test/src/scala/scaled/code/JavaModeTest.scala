@@ -42,11 +42,11 @@ class JavaModeTest {
   def javaProps = getClass.getClassLoader.getResource("JavaProperties.ndf")
   val grammars = Seq(Grammar.parseNDF(javaDoc), Grammar.parseNDF(java))
 
-  @Test def dumpGrammar () {
+  @Test def dumpGrammar () :Unit = {
     Grammar.parseNDF(javaProps).print(System.out)
   }
 
-  @Test def testStylesLink () {
+  @Test def testStylesLink () :Unit = {
     val buffer = BufferImpl(new TextStore("Test.java", "", testJavaCode))
     val scoper = Grammar.testScoper(
       grammars, buffer, List(new Selector.Processor(new JavaGrammarPlugin().effacers)))

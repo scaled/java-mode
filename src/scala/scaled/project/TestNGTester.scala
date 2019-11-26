@@ -17,7 +17,7 @@ import scaled.util.{BufferBuilder, Close, Errors, SubProcess}
 
 object TestNGTester {
 
-  def addComponent (project :Project, java :JavaComponent) {
+  def addComponent (project :Project, java :JavaComponent) :Unit = {
     // if the classpath contains test-ng, add its tester
     if (java.buildClasspath.exists { p => TestNGPat.matcher(p.getFileName.toString).matches }) {
       project.addComponent(classOf[Tester], new TestNGTester(project, java))
@@ -43,7 +43,7 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
   //   })
   // }
 
-  override def describeSelf (bb :BufferBuilder) {
+  override def describeSelf (bb :BufferBuilder) :Unit = {
     bb.addSection("Test Sources:")
     testSourceDirs foreach { p => bb.add(p.toString) }
   }
@@ -58,7 +58,7 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
 
   override def isTestClass (name :String) = (name endsWith "Test") || (name startsWith "Test")
 
-  override def abort () {
+  override def abort () :Unit = {
     // session.get.forceClose()
     // session.close()
   }
@@ -135,7 +135,7 @@ class TestNGTester (proj :Project, java :JavaComponent) extends JavaTester(proj,
       Some(result)
     }
 
-  private def onTestSources (fn :(Path => Boolean)) {
+  private def onTestSources (fn :(Path => Boolean)) :Unit = {
     testSourceDirs foreach { dir =>
       if (Files.exists(dir)) Files.walkFileTree(dir, new SimpleFileVisitor[Path]() {
         override def visitFile (file :Path, attrs :BasicFileAttributes) = {
